@@ -1,0 +1,4633 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>狂鹿作战 · 词条生成器 1.0.1</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+      user-select: none;
+    }
+    body {
+      background: #0b0e14;
+      color: #e4e9f2;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      padding: 20px;
+    }
+    .generator-app {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      max-width: 1600px;
+      background: #14181f;
+      border-radius: 24px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.7), 0 0 0 1px #2e3a47 inset;
+      overflow: hidden;
+    }
+    .generator-header {
+      padding: 20px 28px;
+      background: #1b212b;
+      border-bottom: 1px solid #2f3d4e;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .generator-header h1 {
+      font-size: 1.4rem;
+      font-weight: 500;
+      color: #b6d0ea;
+      text-shadow: 0 0 12px #3a73a8;
+    }
+    .generator-header .actions {
+      display: flex;
+      gap: 12px;
+    }
+    .generator-header button {
+      background: #28323f;
+      border: none;
+      color: #cfdbe9;
+      padding: 10px 24px;
+      border-radius: 30px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4), 0 0 0 1px #3f5063 inset;
+      transition: all 0.2s ease;
+    }
+    .generator-header button:hover {
+      background: #3b4a5e;
+      color: white;
+      transform: translateY(-1px);
+    }
+    .generator-header button:active {
+      transform: translateY(2px);
+    }
+    .generator-body {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+      min-height: 800px;
+    }
+    .form-panel {
+      flex: 1;
+      padding: 24px;
+      overflow-y: auto;
+      background: url('https://media.prts.wiki/5/53/Avg_pic_rogue_6_6.png') center/cover fixed no-repeat;
+      border-right: 2px solid #2c3a4b;
+    }
+    .preview-panel {
+      flex: 1.2;
+      display: flex;
+      flex-direction: column;
+      background: #0b0e14;
+    }
+    .preview-header {
+      padding: 16px 24px;
+      background: #1b212b;
+      border-bottom: 1px solid #2f3d4e;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .preview-header h2 {
+      font-size: 1.1rem;
+      font-weight: 500;
+      color: #b6d0ea;
+    }
+    .preview-frame {
+      flex: 1;
+      border: none;
+      width: 100%;
+      background: #0b0e14;
+    }
+    .form-section {
+      margin-bottom: 28px;
+      background: #14181f;
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 4px 12px #00000033, 0 0 0 1px #2e3a47 inset;
+    }
+    .form-section h3 {
+      font-size: 1rem;
+      color: #b6d0ea;
+      margin-bottom: 16px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #2a3644;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .form-section h3 .icon {
+      font-size: 1.1rem;
+    }
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 14px;
+    }
+    .input-group label {
+      font-size: 0.8rem;
+      color: #8fa5bb;
+      font-weight: 500;
+    }
+    .input-group input, .input-group select, .input-group textarea {
+      background: #0f131a;
+      border: 1px solid #2f3d4e;
+      border-radius: 8px;
+      padding: 10px 14px;
+      color: #dfeaf5;
+      font-size: 0.9rem;
+      outline: none;
+      transition: border 0.2s;
+    }
+    .input-group input:focus, .input-group select:focus, .input-group textarea:focus {
+      border-color: #6d8bb0;
+      box-shadow: 0 0 0 2px #1e3a5f33;
+    }
+    .input-group textarea {
+      resize: vertical;
+      min-height: 60px;
+      font-family: inherit;
+    }
+    .input-row {
+      display: flex;
+      gap: 12px;
+    }
+    .input-row .input-group {
+      flex: 1;
+    }
+    .btn-primary {
+      background: #2f4055;
+      border: none;
+      color: #cfdbe9;
+      padding: 10px 20px;
+      border-radius: 30px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4), 0 0 0 1px #3f5063 inset;
+      transition: all 0.2s ease;
+      width: 100%;
+    }
+    .btn-primary:hover {
+      background: #3b4a5e;
+      color: white;
+      transform: translateY(-1px);
+    }
+    .btn-primary:active {
+      transform: translateY(2px);
+    }
+    .node-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      max-height: 260px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+    .node-list-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #1a232f;
+      border-radius: 8px;
+      padding: 8px 12px;
+      border-left: 3px solid #cc3333;
+      font-size: 0.8rem;
+      transition: all 0.2s;
+    }
+    .node-list-item:hover {
+      background: #1f2b3a;
+    }
+    .node-list-item .node-id {
+      font-family: 'JetBrains Mono', monospace;
+      color: #ff8866;
+      font-weight: 600;
+      min-width: 48px;
+    }
+    .node-list-item .node-name {
+      flex: 1;
+      color: #cbdae9;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .node-list-item .node-actions {
+      display: flex;
+      gap: 4px;
+    }
+    .node-list-item .node-actions button {
+      background: #28323f;
+      border: none;
+      color: #cfdbe9;
+      padding: 3px 8px;
+      border-radius: 12px;
+      font-size: 0.65rem;
+      cursor: pointer;
+      box-shadow: 0 2px 4px #00000033;
+      transition: all 0.15s;
+    }
+    .node-list-item .node-actions button:hover {
+      background: #3b4a5e;
+      color: white;
+    }
+    .node-list-item .node-actions button.danger:hover {
+      background: #6b2e2e;
+    }
+    .empty-tip {
+      color: #596b7e;
+      font-style: italic;
+      text-align: center;
+      padding: 24px;
+      font-size: 0.85rem;
+      border: 1px dashed #2d3e50;
+      border-radius: 12px;
+    }
+    .conflict-group-badge {
+      display: inline-block;
+      background: #5a3a3a;
+      color: #ffaa33;
+      border-radius: 10px;
+      padding: 1px 8px;
+      font-size: 0.7rem;
+      margin-left: 6px;
+      font-weight: 600;
+    }
+    .dynamic-badge {
+      display: inline-block;
+      background: #2f4055;
+      color: #b7cdff;
+      border-radius: 10px;
+      padding: 1px 8px;
+      font-size: 0.7rem;
+      margin-left: 6px;
+      font-weight: 600;
+    }
+    .icon-upload-area {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .icon-preview {
+      width: 64px;
+      height: 64px;
+      border-radius: 8px;
+      background: #1a232f;
+      border: 2px dashed #2f3d4e;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      color: #4e6077;
+      overflow: hidden;
+      flex-shrink: 0;
+      position: relative;
+    }
+    .icon-preview img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .icon-upload-btn {
+      background: #28323f;
+      border: none;
+      color: #cfdbe9;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      box-shadow: 0 4px 8px #00000033, 0 0 0 1px #3f5063 inset;
+      transition: all 0.2s;
+    }
+    .icon-upload-btn:hover {
+      background: #3b4a5e;
+      color: white;
+    }
+    input[type="file"] {
+      display: none;
+    }
+    .difficulty-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .difficulty-row input[type="range"] {
+      flex: 1;
+      -webkit-appearance: none;
+      appearance: none;
+      height: 8px;
+      border-radius: 4px;
+      background: #0f131a;
+      border: 1px solid #2f3d4e;
+      outline: none;
+    }
+    .difficulty-row input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #ffaa33;
+      border: 2px solid #1a0e0e;
+      cursor: pointer;
+      box-shadow: 0 0 10px #ffaa3388;
+    }
+    .difficulty-row input[type="range"]::-moz-range-thumb {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #ffaa33;
+      border: 2px solid #1a0e0e;
+      cursor: pointer;
+      box-shadow: 0 0 10px #ffaa3388;
+    }
+    .difficulty-value {
+      min-width: 48px;
+      text-align: center;
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: #ffaa33;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.8rem;
+      color: #8fa5bb;
+      cursor: pointer;
+    }
+    .checkbox-row input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      accent-color: #ffaa33;
+      cursor: pointer;
+    }
+    
+    /* 图标裁剪弹窗 */
+    .crop-modal {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.8);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    .crop-modal.active {
+      display: flex;
+    }
+    .crop-content {
+      background: #14181f;
+      border-radius: 16px;
+      padding: 24px;
+      max-width: 540px;
+      width: 92%;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.8);
+    }
+    .crop-content h3 {
+      margin-bottom: 16px;
+      color: #b6d0ea;
+      font-size: 1.1rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .crop-content .hint {
+      font-size: 0.75rem;
+      color: #8fa5bb;
+      margin-bottom: 12px;
+      line-height: 1.6;
+    }
+    .crop-canvas-container {
+      position: relative;
+      display: inline-block;
+      margin-bottom: 16px;
+      cursor: crosshair;
+      overflow: hidden;
+      border-radius: 8px;
+      background: #000;
+    }
+    .crop-canvas-container canvas {
+      display: block;
+      max-width: 100%;
+    }
+    .crop-overlay {
+      position: absolute;
+      border: 2px solid #ffaa33;
+      box-shadow: 0 0 0 9999px rgba(0,0,0,0.6);
+      pointer-events: none;
+      box-sizing: border-box;
+    }
+    .crop-handle {
+      position: absolute;
+      width: 14px;
+      height: 14px;
+      background: #ffaa33;
+      border: 2px solid #1a0e0e;
+      border-radius: 3px;
+      pointer-events: auto;
+    }
+    .crop-handle.br {
+      right: -7px;
+      bottom: -7px;
+      cursor: nwse-resize;
+    }
+    .crop-handle.tl {
+      left: -7px;
+      top: -7px;
+      cursor: nwse-resize;
+    }
+    .crop-actions {
+      display: flex;
+      gap: 12px;
+      justify-content: flex-end;
+    }
+    .crop-actions button {
+      padding: 8px 20px;
+      border-radius: 20px;
+      border: none;
+      font-weight: 600;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .crop-actions .confirm-btn {
+      background: #2f4055;
+      color: #cfdbe9;
+      box-shadow: 0 4px 8px #00000033, 0 0 0 1px #3f5063 inset;
+    }
+    .crop-actions .confirm-btn:hover {
+      background: #3b4a5e;
+      color: white;
+    }
+    .crop-actions .cancel-btn {
+      background: #2a1e1e;
+      color: #cfdbe9;
+      box-shadow: 0 4px 8px #00000033, 0 0 0 1px #5a3a3a inset;
+    }
+    .crop-actions .cancel-btn:hover {
+      background: #4a1e1e;
+      color: white;
+    }
+    
+    /* 背景裁剪弹窗自适应 */
+    .bg-crop-modal {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.85);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 3000;
+    }
+    .bg-crop-modal.active { display: flex; }
+    .bg-crop-content {
+      background: #14181f;
+      border-radius: 16px;
+      padding: 20px;
+      max-width: 90vw;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 20px 40px #000;
+    }
+    .bg-crop-content h3 { color: #b6d0ea; margin-bottom: 12px; }
+    .bg-crop-canvas-wrap {
+      position: relative;
+      background: #000;
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 12px;
+      cursor: move;
+    }
+    .bg-crop-canvas-wrap canvas { display: block; max-width: 100%; }
+    .bg-crop-slider-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+      font-size: 0.85rem;
+      color: #8fa5bb;
+    }
+    .bg-crop-slider-row input[type="range"] { flex: 1; }
+    .bg-crop-actions { display: flex; justify-content: flex-end; gap: 12px; }
+    .bg-crop-actions button {
+      padding: 8px 20px;
+      border-radius: 20px;
+      border: none;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .bg-crop-actions .secondary {
+      background: #2a1e1e;
+      color: #cfdbe9;
+    }
+    .bg-crop-actions .primary {
+      background: #2f4055;
+      color: #cfdbe9;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #2a1e1e;
+      color: #ffaa33;
+      padding: 12px 28px;
+      border-radius: 30px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      box-shadow: 0 10px 25px #000000, 0 0 0 1px #cc3333 inset;
+      z-index: 2000;
+      opacity: 0;
+      transition: opacity 0.3s;
+      pointer-events: none;
+    }
+    .toast.show {
+      opacity: 1;
+    }
+    .binarize-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.8rem;
+      color: #8fa5bb;
+      margin-bottom: 12px;
+    }
+    .binarize-row input[type="checkbox"] {
+      accent-color: #ffaa33;
+    }
+    .theme-color-picker {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .theme-color-picker input[type="color"] {
+      width: 32px;
+      height: 32px;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      padding: 0;
+    }
+    .binarize-preview {
+      width: 64px;
+      height: 64px;
+      border-radius: 8px;
+      background: #1a232f;
+      border: 1px solid #2f3d4e;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      color: #4e6077;
+    }
+    .binarize-preview img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .bg-upload-area {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .bg-upload-btn {
+      background: #28323f;
+      border: none;
+      color: #cfdbe9;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      box-shadow: 0 4px 8px #00000033, 0 0 0 1px #3f5063 inset;
+      transition: all 0.2s;
+    }
+    .bg-upload-btn:hover {
+      background: #3b4a5e;
+      color: white;
+    }
+    .bg-preview-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 0.75rem;
+      color: #8fa5bb;
+      flex-wrap: wrap;
+    }
+    .bg-preview-row img {
+      width: 80px;
+      height: 45px;
+      border-radius: 6px;
+      object-fit: cover;
+      border: 1px solid #2f3d4e;
+    }
+    .keyboard-hint {
+      font-size: 0.7rem;
+      color: #ffaa33;
+      margin-top: 4px;
+      display: block;
+    }
+    .fill-texture-preview {
+      width: 64px;
+      height: 64px;
+      border-radius: 8px;
+      background: #1a232f;
+      border: 1px solid #2f3d4e;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      color: #4e6077;
+      flex-shrink: 0;
+    }
+    .fill-texture-preview img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .line-config-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #1a232f;
+      padding: 6px 10px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+    }
+    .line-config-row label {
+      color: #8fa5bb;
+      min-width: 60px;
+    }
+    .line-config-row select {
+      background: #0f131a;
+      border: 1px solid #2f3d4e;
+      border-radius: 6px;
+      padding: 4px 8px;
+      color: #dfeaf5;
+      font-size: 0.8rem;
+      outline: none;
+      flex: 1;
+    }
+    .range-slider {
+      flex: 1;
+      -webkit-appearance: none;
+      appearance: none;
+      height: 6px;
+      border-radius: 3px;
+      background: #0f131a;
+      border: 1px solid #2f3d4e;
+      outline: none;
+    }
+    .range-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: #ffaa33;
+      border: 2px solid #1a0e0e;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+<div class="generator-app">
+  <div class="generator-header">
+    <h1>⚙️ 狂鹿作战 · 词条生成器 1.0.1</h1>
+    <div class="actions">
+      <button id="generateBtn">📄 生成 HTML 代码</button>
+      <button id="downloadBtn">⬇️ 下载文件</button>
+    </div>
+  </div>
+  <div class="generator-body">
+    <div class="form-panel">
+      <div class="form-section">
+        <h3><span class="icon">🎯</span> 难度设置</h3>
+        <div class="input-group">
+          <label>初始难度（0 ~ 18，生成的选择器中可继续调整）</label>
+          <div class="difficulty-row">
+            <input type="range" id="difficultyRange" min="0" max="18" step="1" value="0" />
+            <span class="difficulty-value" id="difficultyValue">0</span>
+          </div>
+        </div>
+        <p style="font-size:0.75rem;color:#8fa5bb;line-height:1.6;">
+          动态分数公式：<strong style="color:#ffaa33;">5x + (max{x-10, 0})²</strong>，其中 x 为当前难度。
+        </p>
+      </div>
+
+      <div class="form-section">
+        <h3><span class="icon">🎨</span> 全局主题色</h3>
+        <div class="input-group">
+          <label>应用于所有选中词条的连线、冲突标记（以及包含二值化图标的词条）</label>
+          <div class="theme-color-picker">
+            <input type="color" id="globalThemeColorInput" value="#ffaa33" />
+            <span id="globalThemeColorValue">#ffaa33</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <h3><span class="icon">🌈</span> 纹理/渐变填充</h3>
+        <div class="input-group">
+          <label class="checkbox-row">
+            <input type="checkbox" id="useFillInput" />
+            启用纹理/渐变填充（应用于选中词条与连线，替换主题色）
+          </label>
+        </div>
+        <div class="input-group">
+          <label>填充类型</label>
+          <select id="fillTypeSelect">
+            <option value="gradient">渐变</option>
+            <option value="texture">纹理图片</option>
+          </select>
+        </div>
+        <div id="gradientSettings">
+          <div class="input-row">
+            <div class="input-group">
+              <label>颜色1</label>
+              <input type="color" id="gradientColor1" value="#ffaa33" />
+            </div>
+            <div class="input-group">
+              <label>颜色2</label>
+              <input type="color" id="gradientColor2" value="#ff3300" />
+            </div>
+            <div class="input-group">
+              <label>角度</label>
+              <input type="number" id="gradientAngle" value="45" min="0" max="360" />
+            </div>
+          </div>
+        </div>
+        <div id="textureSettings" style="display:none;">
+          <div class="input-group">
+            <label>纹理图片（平铺/覆盖）</label>
+            <div class="icon-upload-area">
+              <div class="fill-texture-preview" id="fillTexturePreview">🖼️</div>
+              <button class="icon-upload-btn" id="uploadFillTextureBtn">📤 上传纹理</button>
+              <input type="file" id="fillTextureFileInput" accept="image/*" />
+            </div>
+          </div>
+        </div>
+        <p style="font-size:0.75rem;color:#8fa5bb;line-height:1.6;">
+          纹理/渐变将替换选中词条的高亮颜色与连线颜色。
+        </p>
+      </div>
+
+      <div class="form-section">
+        <h3><span class="icon">📝</span> 词条基本信息</h3>
+        <div class="input-group">
+          <label>词条编号 <span style="color:#8a9db0;font-weight:400;">（如 1、1.1、1.1.1，自动识别父子关系）</span></label>
+          <input type="text" id="nodeIdInput" placeholder="例如: 1.1.2" />
+        </div>
+        <div class="input-group">
+          <label>词条名称（显示在节点上）</label>
+          <input type="text" id="nodeNameInput" placeholder="例如: 目标：撕咬" />
+        </div>
+        <div class="input-group">
+          <label>指标集名称 <span style="color:#8a9db0;font-weight:400;">（仅编号为单个数字的根词条可填，用于"指标集：xxx"标题）</span></label>
+          <input type="text" id="nodeSetNameInput" placeholder="留空则使用词条名称" disabled style="opacity:0.5;cursor:not-allowed;" />
+        </div>
+
+        <div class="input-group">
+          <label>词条描述（右侧面板显示）</label>
+          <textarea id="nodeDescInput" placeholder="例如: 至少触发3次“追猎” 30"></textarea>
+        </div>
+        <div class="input-row">
+          <div class="input-group">
+            <label>冲突组（可选）</label>
+            <input type="text" id="nodeConflictInput" placeholder="例如: A" />
+          </div>
+          <div class="input-group">
+            <label>静态分数（自动从描述末尾提取，可手动覆盖）</label>
+            <input type="number" id="nodeScoreInput" placeholder="留空则自动提取" />
+          </div>
+        </div>
+        <div class="input-group">
+          <label class="checkbox-row">
+            <input type="checkbox" id="nodeDynamicInput" />
+            动态分数（勾选后按难度公式计算，忽略静态分数）
+          </label>
+        </div>
+        <div class="input-group">
+          <label>词条图标（上传图片，自动裁剪为正方形并铺满图标；名称自动反色）</label>
+          <div class="icon-upload-area">
+            <div class="icon-preview" id="iconPreview">🖼️</div>
+            <button class="icon-upload-btn" id="uploadIconBtn">📤 上传图片</button>
+            <input type="file" id="iconFileInput" accept="image/*" />
+          </div>
+        </div>
+        <div class="input-row">
+          <div class="input-group">
+            <label>自定义网格坐标（X, Y）<span class="keyboard-hint">在预览中选中词条后可用方向键微调</span></label>
+            <div style="display:flex;gap:8px;">
+              <input type="number" id="nodeGridX" placeholder="X (列)" style="flex:1;" />
+              <input type="number" id="nodeGridY" placeholder="Y (行)" style="flex:1;" />
+            </div>
+          </div>
+        </div>
+        <div class="input-row">
+          <div class="input-group">
+            <label>额外父词条（可选，多个用逗号分隔）</label>
+            <input type="text" id="nodeExtraParentsInput" placeholder="例如: 1,2.1" />
+          </div>
+        </div>
+        <div class="input-group">
+          <label>父连线配置（每个父词条可单独设置出发边/终止边）</label>
+          <div id="lineConfigContainer" style="display:flex;flex-direction:column;gap:8px;"></div>
+        </div>
+        <button class="btn-primary" id="addNodeBtn">➕ 添加 / 更新词条</button>
+      </div>
+
+      <div class="form-section">
+        <h3><span class="icon">📋</span> 已添加词条列表</h3>
+        <div id="nodeListContainer" class="node-list">
+          <div class="empty-tip">暂无词条，请在上方添加</div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <h3><span class="icon">🖼️</span> 背景图片设置</h3>
+        <div class="input-group">
+          <label>词条选择器背景（整个左侧树区域）</label>
+          <div class="bg-upload-area">
+            <button class="bg-upload-btn" id="uploadTreeBgBtn">📤 上传选择器背景</button>
+            <input type="file" id="treeBgFileInput" accept="image/*" />
+            <div class="bg-preview-row" id="treeBgPreviewRow" style="display:none;">
+              <img id="treeBgPreviewImg" alt="tree bg" />
+              <div style="display:flex; align-items:center; gap:8px; flex:1; min-width:150px;">
+                <label style="font-size:0.75rem; color:#8fa5bb; white-space:nowrap;">透明度</label>
+                <input type="range" id="treeBgOpacity" min="0" max="100" value="100" class="range-slider" />
+                <span id="treeBgOpacityValue" style="font-size:0.75rem; width:35px; text-align:right;">100%</span>
+              </div>
+              <button class="bg-upload-btn" id="removeTreeBgBtn" style="padding:4px 12px;font-size:0.7rem;">移除</button>
+            </div>
+          </div>
+        </div>
+        <div class="input-group">
+          <label>指标集背景（每个指标集区域的背景）</label>
+          <div class="bg-upload-area">
+            <button class="bg-upload-btn" id="uploadSetBgBtn">📤 上传指标集背景</button>
+            <input type="file" id="setBgFileInput" accept="image/*" />
+            <div class="bg-preview-row" id="setBgPreviewRow" style="display:none;">
+              <img id="setBgPreviewImg" alt="set bg" />
+              <div style="display:flex; align-items:center; gap:8px; flex:1; min-width:150px;">
+                <label style="font-size:0.75rem; color:#8fa5bb; white-space:nowrap;">透明度</label>
+                <input type="range" id="setBgOpacity" min="0" max="100" value="100" class="range-slider" />
+                <span id="setBgOpacityValue" style="font-size:0.75rem; width:35px; text-align:right;">100%</span>
+              </div>
+              <button class="bg-upload-btn" id="removeSetBgBtn" style="padding:4px 12px;font-size:0.7rem;">移除</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-section" style="background:#1a1f28;">
+        <h3><span class="icon">⚡</span> 冲突组说明</h3>
+        <p style="font-size:0.8rem;color:#8fa5bb;line-height:1.6;">
+          相同父节点下，相同冲突组的词条互斥。<br>
+          例如：2.1.1、2.1.2、2.1.3、2.1.4 的冲突组均为 "A"，父节点均为 "2.1"，则它们互相冲突。
+        </p>
+      </div>
+    </div>
+
+    <div class="preview-panel">
+      <div class="preview-header">
+        <h2>🔍 实时预览</h2>
+        <span style="font-size:0.8rem;color:#8fa5bb;" id="previewStatus">等待词条数据…</span>
+      </div>
+      <iframe class="preview-frame" id="previewFrame" sandbox="allow-scripts allow-same-origin"></iframe>
+    </div>
+  </div>
+</div>
+
+<div class="crop-modal" id="cropModal">
+  <div class="crop-content">
+    <h3>✂️ 裁剪图标</h3>
+    <div class="hint">拖动方框移动位置；拖动右下角/左上角手柄可缩放大小。确认后将裁剪为正方形并铺满图标。</div>
+    <div class="binarize-row">
+      <label class="checkbox-row" style="margin:0;">
+        <input type="checkbox" id="binarizeCheckbox" />
+        启用二值化（黑白，选中时自动反色）
+      </label>
+      <div class="binarize-preview" id="binarizePreview">预览</div>
+    </div>
+    <div class="crop-canvas-container" id="cropCanvasContainer">
+      <canvas id="cropCanvas"></canvas>
+      <div class="crop-overlay" id="cropOverlay">
+        <div class="crop-handle tl" id="handleTL"></div>
+        <div class="crop-handle br" id="handleBR"></div>
+      </div>
+    </div>
+    <div class="crop-actions">
+      <button class="cancel-btn" id="cropCancelBtn">取消</button>
+      <button class="confirm-btn" id="cropConfirmBtn">确认裁剪</button>
+    </div>
+  </div>
+</div>
+
+<div class="bg-crop-modal" id="bgCropModal">
+  <div class="bg-crop-content">
+    <h3>✂️ 裁剪背景</h3>
+    <div class="bg-crop-canvas-wrap" id="bgCropWrap">
+      <canvas id="bgCropCanvas"></canvas>
+    </div>
+    <div class="bg-crop-slider-row">
+      <span>缩放</span>
+      <input type="range" id="bgCropZoom" min="0.1" max="5" step="0.01" value="1" />
+      <span id="bgCropZoomValue">100%</span>
+    </div>
+    <div class="bg-crop-actions">
+      <button class="secondary" id="bgCropCancelBtn">取消</button>
+      <button class="primary" id="bgCropConfirmBtn">确认</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  const nodeStore = new Map();
+  let currentEditingIcon = null;
+  let currentEditingIconIsBinarized = false;
+  
+  let currentEditingId = null;
+  let initialDifficulty = 0;
+  let treeBgImage = null;
+  let treeBgOpacity = 100;
+  let setBgImage = null;
+  let setBgOpacity = 100;
+  let globalThemeColor = '#ffaa33';
+
+  let useFill = false;
+  let fillType = 'gradient';
+  let gradientColor1 = '#ffaa33';
+  let gradientColor2 = '#ff3300';
+  let gradientAngle = 45;
+  let fillTextureImage = null;
+
+  function showToast(msg, isError = false) {
+    const toast = document.getElementById('toast');
+    toast.textContent = msg;
+    toast.style.color = isError ? '#ff6b6b' : '#ffaa33';
+    toast.classList.add('show');
+    clearTimeout(toast._timer);
+    toast._timer = setTimeout(() => toast.classList.remove('show'), 2200);
+  }
+
+  function extractScore(desc) {
+    if (!desc) return 0;
+    const match = desc.match(/(\d+)\s*$/);
+    return match ? parseInt(match[1]) : 0;
+  }
+
+  function inferParent(id) {
+    if (!id || !id.includes('.')) return null;
+    const parts = id.split('.');
+    if (parts.length <= 1) return null;
+    return parts.slice(0, -1).join('.');
+  }
+
+  function getDepth(id) {
+    if (!id) return 0;
+    return id.split('.').length - 1;
+  }
+
+  function getAllDescendants(id) {
+    const result = new Set();
+    function dfs(curId) {
+      for (let [nid, node] of nodeStore) {
+        if (node.parent === curId) {
+          result.add(nid);
+          dfs(nid);
+        }
+      }
+    }
+    dfs(id);
+    return result;
+  }
+
+  const difficultyRange = document.getElementById('difficultyRange');
+  const difficultyValue = document.getElementById('difficultyValue');
+
+  difficultyRange.addEventListener('input', () => {
+    initialDifficulty = parseInt(difficultyRange.value);
+    difficultyValue.textContent = initialDifficulty;
+    updatePreview();
+  });
+
+  const globalThemeColorInput = document.getElementById('globalThemeColorInput');
+  const globalThemeColorValue = document.getElementById('globalThemeColorValue');
+  
+  globalThemeColorInput.addEventListener('input', (e) => {
+    globalThemeColor = e.target.value;
+    globalThemeColorValue.textContent = globalThemeColor;
+    if (currentEditingIconIsBinarized) {
+      updateBinarizePreview();
+    }
+    updatePreview();
+  });
+
+  const useFillInput = document.getElementById('useFillInput');
+  const fillTypeSelect = document.getElementById('fillTypeSelect');
+  const gradientSettings = document.getElementById('gradientSettings');
+  const textureSettings = document.getElementById('textureSettings');
+  const gradientColor1Input = document.getElementById('gradientColor1');
+  const gradientColor2Input = document.getElementById('gradientColor2');
+  const gradientAngleInput = document.getElementById('gradientAngle');
+  const fillTexturePreview = document.getElementById('fillTexturePreview');
+  const uploadFillTextureBtn = document.getElementById('uploadFillTextureBtn');
+  const fillTextureFileInput = document.getElementById('fillTextureFileInput');
+
+  useFillInput.addEventListener('change', () => {
+    useFill = useFillInput.checked;
+    updatePreview();
+  });
+
+  fillTypeSelect.addEventListener('change', () => {
+    fillType = fillTypeSelect.value;
+    gradientSettings.style.display = fillType === 'gradient' ? 'block' : 'none';
+    textureSettings.style.display = fillType === 'texture' ? 'block' : 'none';
+    updatePreview();
+  });
+
+  gradientColor1Input.addEventListener('input', () => {
+    gradientColor1 = gradientColor1Input.value;
+    updatePreview();
+  });
+  gradientColor2Input.addEventListener('input', () => {
+    gradientColor2 = gradientColor2Input.value;
+    updatePreview();
+  });
+  gradientAngleInput.addEventListener('input', () => {
+    gradientAngle = parseInt(gradientAngleInput.value) || 0;
+    updatePreview();
+  });
+
+  uploadFillTextureBtn.addEventListener('click', () => fillTextureFileInput.click());
+  fillTextureFileInput.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      fillTextureImage = ev.target.result;
+      fillTexturePreview.innerHTML = `<img src="${fillTextureImage}" />`;
+      showToast('纹理已更新');
+      updatePreview();
+    };
+    reader.readAsDataURL(file);
+    fillTextureFileInput.value = '';
+  });
+
+  const treeBgFileInput = document.getElementById('treeBgFileInput');
+  const uploadTreeBgBtn = document.getElementById('uploadTreeBgBtn');
+  const treeBgPreviewRow = document.getElementById('treeBgPreviewRow');
+  const treeBgPreviewImg = document.getElementById('treeBgPreviewImg');
+  const removeTreeBgBtn = document.getElementById('removeTreeBgBtn');
+  const treeBgOpacityInput = document.getElementById('treeBgOpacity');
+  const treeBgOpacityValue = document.getElementById('treeBgOpacityValue');
+
+  const setBgFileInput = document.getElementById('setBgFileInput');
+  const uploadSetBgBtn = document.getElementById('uploadSetBgBtn');
+  const setBgPreviewRow = document.getElementById('setBgPreviewRow');
+  const setBgPreviewImg = document.getElementById('setBgPreviewImg');
+  const removeSetBgBtn = document.getElementById('removeSetBgBtn');
+  const setBgOpacityInput = document.getElementById('setBgOpacity');
+  const setBgOpacityValue = document.getElementById('setBgOpacityValue');
+
+  uploadTreeBgBtn.addEventListener('click', () => treeBgFileInput.click());
+  treeBgFileInput.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const pf = document.getElementById('previewFrame');
+      const aspect = (pf.clientWidth || 800) / (pf.clientHeight || 600);
+      openBgCropModal(ev.target.result, aspect, (dataUrl) => {
+        treeBgImage = dataUrl;
+        treeBgPreviewImg.src = treeBgImage;
+        treeBgPreviewRow.style.display = 'flex';
+        showToast('选择器背景已更新');
+        updatePreview();
+      });
+    };
+    reader.readAsDataURL(file);
+    treeBgFileInput.value = '';
+  });
+  removeTreeBgBtn.addEventListener('click', () => {
+    treeBgImage = null;
+    treeBgPreviewRow.style.display = 'none';
+    showToast('选择器背景已移除');
+    updatePreview();
+  });
+  treeBgOpacityInput.addEventListener('input', () => {
+    treeBgOpacity = parseInt(treeBgOpacityInput.value);
+    treeBgOpacityValue.textContent = treeBgOpacity + '%';
+    updatePreview();
+  });
+
+  uploadSetBgBtn.addEventListener('click', () => setBgFileInput.click());
+  setBgFileInput.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      openBgCropModal(ev.target.result, 4, (dataUrl) => {
+        setBgImage = dataUrl;
+        setBgPreviewImg.src = setBgImage;
+        setBgPreviewRow.style.display = 'flex';
+        showToast('指标集背景已更新');
+        updatePreview();
+      });
+    };
+    reader.readAsDataURL(file);
+    setBgFileInput.value = '';
+  });
+  removeSetBgBtn.addEventListener('click', () => {
+    setBgImage = null;
+    setBgPreviewRow.style.display = 'none';
+    showToast('指标集背景已移除');
+    updatePreview();
+  });
+  setBgOpacityInput.addEventListener('input', () => {
+    setBgOpacity = parseInt(setBgOpacityInput.value);
+    setBgOpacityValue.textContent = setBgOpacity + '%';
+    updatePreview();
+  });
+
+  const iconFileInput = document.getElementById('iconFileInput');
+  const uploadIconBtn = document.getElementById('uploadIconBtn');
+  const iconPreview = document.getElementById('iconPreview');
+  const cropModal = document.getElementById('cropModal');
+  const cropCanvas = document.getElementById('cropCanvas');
+  const cropOverlay = document.getElementById('cropOverlay');
+  const cropCanvasContainer = document.getElementById('cropCanvasContainer');
+  const handleTL = document.getElementById('handleTL');
+  const handleBR = document.getElementById('handleBR');
+  const binarizeCheckbox = document.getElementById('binarizeCheckbox');
+  const binarizePreview = document.getElementById('binarizePreview');
+  
+  let cropCtx = cropCanvas.getContext('2d');
+  let originalImage = null;
+  let cropRect = { x: 0, y: 0, w: 0, h: 0 };
+  let isDragging = false;
+  let isResizing = false;
+  let resizeHandle = null;
+  let dragOffset = { x: 0, y: 0 };
+
+  uploadIconBtn.addEventListener('click', () => iconFileInput.click());
+
+  iconFileInput.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const img = new Image();
+      img.onload = () => {
+        originalImage = img;
+        openCropModal(img);
+      };
+      img.src = ev.target.result;
+    };
+    reader.readAsDataURL(file);
+    iconFileInput.value = '';
+  });
+
+  function openCropModal(img) {
+    originalImage = img;
+    const maxW = 460;
+    const scale = Math.min(1, maxW / img.width);
+    const displayW = Math.round(img.width * scale);
+    const displayH = Math.round(img.height * scale);
+    cropCanvas.width = displayW;
+    cropCanvas.height = displayH;
+    cropCanvasContainer.style.width = displayW + 'px';
+    cropCanvasContainer.style.height = displayH + 'px';
+    cropCtx.drawImage(img, 0, 0, displayW, displayH);
+
+    const side = Math.round(Math.min(displayW, displayH) * 0.8);
+    cropRect = {
+      x: Math.round((displayW - side) / 2),
+      y: Math.round((displayH - side) / 2),
+      w: side,
+      h: side
+    };
+    updateCropOverlay();
+    updateBinarizePreview();
+    cropModal.classList.add('active');
+    isDragging = false;
+    isResizing = false;
+  }
+
+  function updateCropOverlay() {
+    cropOverlay.style.left = cropRect.x + 'px';
+    cropOverlay.style.top = cropRect.y + 'px';
+    cropOverlay.style.width = cropRect.w + 'px';
+    cropOverlay.style.height = cropRect.h + 'px';
+  }
+
+  function updateBinarizePreview() {
+    if (!originalImage) return;
+    if (!binarizeCheckbox.checked) {
+      binarizePreview.innerHTML = '预览';
+      return;
+    }
+    
+    const scale = originalImage.width / cropCanvas.width;
+    const sx = cropRect.x * scale;
+    const sy = cropRect.y * scale;
+    const sw = cropRect.w * scale;
+    const sh = cropRect.h * scale;
+    const outSize = 64;
+    const outCanvas = document.createElement('canvas');
+    outCanvas.width = outSize;
+    outCanvas.height = outSize;
+    const ctx = outCanvas.getContext('2d');
+    ctx.drawImage(originalImage, sx, sy, sw, sh, 0, 0, outSize, outSize);
+    
+    const imgData = ctx.getImageData(0, 0, outSize, outSize);
+    const data = imgData.data;
+    for (let i = 0; i < data.length; i += 4) {
+      const gray = 0.299 * data[i] + 0.587 * data[i+1] + 0.114 * data[i+2];
+      if (gray > 128) {
+        data[i] = 255; data[i+1] = 255; data[i+2] = 255;
+      } else {
+        data[i] = 0; data[i+1] = 0; data[i+2] = 0;
+      }
+    }
+    ctx.putImageData(imgData, 0, 0);
+    binarizePreview.innerHTML = `<img src="${outCanvas.toDataURL()}" />`;
+  }
+
+  binarizeCheckbox.addEventListener('change', updateBinarizePreview);
+
+  cropCanvasContainer.addEventListener('mousedown', (e) => {
+    if (!cropModal.classList.contains('active')) return;
+    const rect = cropCanvasContainer.getBoundingClientRect();
+    const mx = e.clientX - rect.left;
+    const my = e.clientY - rect.top;
+
+    const handleSize = 18;
+    const tlX = cropRect.x - 7;
+    const tlY = cropRect.y - 7;
+    const brX = cropRect.x + cropRect.w - 7;
+    const brY = cropRect.y + cropRect.h - 7;
+
+    if (Math.abs(mx - tlX) < handleSize && Math.abs(my - tlY) < handleSize) {
+      isResizing = true;
+      resizeHandle = 'tl';
+      e.preventDefault();
+      return;
+    }
+    if (Math.abs(mx - brX) < handleSize && Math.abs(my - brY) < handleSize) {
+      isResizing = true;
+      resizeHandle = 'br';
+      e.preventDefault();
+      return;
+    }
+
+    if (mx >= cropRect.x && mx <= cropRect.x + cropRect.w &&
+        my >= cropRect.y && my <= cropRect.y + cropRect.h) {
+      isDragging = true;
+      dragOffset.x = mx - cropRect.x;
+      dragOffset.y = my - cropRect.y;
+      e.preventDefault();
+    }
+  });
+
+  window.addEventListener('mousemove', (e) => {
+    if (!cropModal.classList.contains('active')) return;
+    const rect = cropCanvasContainer.getBoundingClientRect();
+    const mx = e.clientX - rect.left;
+    const my = e.clientY - rect.top;
+
+    if (isDragging) {
+      let nx = mx - dragOffset.x;
+      let ny = my - dragOffset.y;
+      nx = Math.max(0, Math.min(cropCanvas.width - cropRect.w, nx));
+      ny = Math.max(0, Math.min(cropCanvas.height - cropRect.h, ny));
+      cropRect.x = Math.round(nx);
+      cropRect.y = Math.round(ny);
+      updateCropOverlay();
+      updateBinarizePreview();
+    } else if (isResizing) {
+      const anchorX = resizeHandle === 'br' ? cropRect.x : cropRect.x + cropRect.w;
+      const anchorY = resizeHandle === 'br' ? cropRect.y : cropRect.y + cropRect.h;
+
+      let newX = mx;
+      let newY = my;
+      newX = Math.max(0, Math.min(cropCanvas.width, newX));
+      newY = Math.max(0, Math.min(cropCanvas.height, newY));
+
+      const sideX = Math.abs(newX - anchorX);
+      const sideY = Math.abs(newY - anchorY);
+      const side = Math.max(8, Math.min(sideX, sideY));
+
+      let newRect;
+      if (resizeHandle === 'br') {
+        newRect = { x: anchorX, y: anchorY, w: side, h: side };
+        if (newRect.x + newRect.w > cropCanvas.width) newRect.w = cropCanvas.width - newRect.x;
+        if (newRect.y + newRect.h > cropCanvas.height) newRect.h = cropCanvas.height - newRect.y;
+        const minSide = Math.min(newRect.w, newRect.h);
+        newRect.w = minSide;
+        newRect.h = minSide;
+      } else {
+        newRect = { x: anchorX - side, y: anchorY - side, w: side, h: side };
+        if (newRect.x < 0) { newRect.x = 0; newRect.w = anchorX; newRect.h = anchorX; }
+        if (newRect.y < 0) { newRect.y = 0; newRect.h = anchorY; newRect.w = anchorY; }
+        const minSide = Math.min(newRect.w, newRect.h);
+        newRect.w = minSide;
+        newRect.h = minSide;
+        if (newRect.x + newRect.w > anchorX) newRect.x = anchorX - newRect.w;
+        if (newRect.y + newRect.h > anchorY) newRect.y = anchorY - newRect.h;
+      }
+      cropRect = {
+        x: Math.round(newRect.x),
+        y: Math.round(newRect.y),
+        w: Math.round(newRect.w),
+        h: Math.round(newRect.h)
+      };
+      updateCropOverlay();
+      updateBinarizePreview();
+    }
+  });
+
+  window.addEventListener('mouseup', () => {
+    isDragging = false;
+    isResizing = false;
+    resizeHandle = null;
+  });
+
+  document.getElementById('cropCancelBtn').addEventListener('click', () => {
+    cropModal.classList.remove('active');
+    originalImage = null;
+    binarizePreview.innerHTML = '预览';
+  });
+
+  document.getElementById('cropConfirmBtn').addEventListener('click', () => {
+    if (!originalImage) return;
+    const scale = originalImage.width / cropCanvas.width;
+    const sx = cropRect.x * scale;
+    const sy = cropRect.y * scale;
+    const sw = cropRect.w * scale;
+    const sh = cropRect.h * scale;
+    const outSize = 128;
+    const outCanvas = document.createElement('canvas');
+    outCanvas.width = outSize;
+    outCanvas.height = outSize;
+    const outCtx = outCanvas.getContext('2d');
+    outCtx.drawImage(originalImage, sx, sy, sw, sh, 0, 0, outSize, outSize);
+
+    const isBinarized = binarizeCheckbox.checked;
+
+    if (isBinarized) {
+      const imgData = outCtx.getImageData(0, 0, outSize, outSize);
+      const data = imgData.data;
+      for (let i = 0; i < data.length; i += 4) {
+        const gray = 0.299 * data[i] + 0.587 * data[i+1] + 0.114 * data[i+2];
+        if (gray > 128) {
+          data[i] = 255; data[i+1] = 255; data[i+2] = 255;
+        } else {
+          data[i] = 0; data[i+1] = 0; data[i+2] = 0;
+        }
+      }
+      outCtx.putImageData(imgData, 0, 0);
+    }
+
+    const dataUrl = outCanvas.toDataURL('image/png');
+    currentEditingIcon = dataUrl;
+    currentEditingIconIsBinarized = isBinarized;
+    
+    iconPreview.innerHTML = `<img src="${dataUrl}" alt="icon" />`;
+    cropModal.classList.remove('active');
+    originalImage = null;
+    binarizePreview.innerHTML = '预览';
+    
+    showToast('图标裁剪完成' + (isBinarized ? '（已二值化）' : ''));
+  });
+
+  const nodeIdInput = document.getElementById('nodeIdInput');
+  const nodeNameInput = document.getElementById('nodeNameInput');
+  const nodeSetNameInput = document.getElementById('nodeSetNameInput');
+  const nodeDescInput = document.getElementById('nodeDescInput');
+  const nodeConflictInput = document.getElementById('nodeConflictInput');
+  const nodeScoreInput = document.getElementById('nodeScoreInput');
+  const nodeDynamicInput = document.getElementById('nodeDynamicInput');
+  const nodeGridX = document.getElementById('nodeGridX');
+  const nodeGridY = document.getElementById('nodeGridY');
+  const nodeExtraParentsInput = document.getElementById('nodeExtraParentsInput');
+  const lineConfigContainer = document.getElementById('lineConfigContainer');
+  const addNodeBtn = document.getElementById('addNodeBtn');
+
+  function renderLineConfig(parentIds, existingConfig = {}) {
+    lineConfigContainer.innerHTML = '';
+    if (parentIds.length === 0) {
+      lineConfigContainer.innerHTML = '<div style="color:#596b7e;font-size:0.75rem;font-style:italic;">暂无父词条</div>';
+      return;
+    }
+    parentIds.forEach(pid => {
+      const cfg = existingConfig[pid] || {};
+      const row = document.createElement('div');
+      row.className = 'line-config-row';
+      row.dataset.parentId = pid;
+      row.innerHTML = `
+        <label>父词条 ${pid}</label>
+        <select class="start-side">
+          <option value="">自动</option>
+          <option value="top">上</option>
+          <option value="bottom">下</option>
+          <option value="left">左</option>
+          <option value="right">右</option>
+        </select>
+        <span style="color:#8fa5bb;">→</span>
+        <select class="end-side">
+          <option value="">自动</option>
+          <option value="top">上</option>
+          <option value="bottom">下</option>
+          <option value="left">左</option>
+          <option value="right">右</option>
+        </select>
+      `;
+      row.querySelector('.start-side').value = cfg.startSide || '';
+      row.querySelector('.end-side').value = cfg.endSide || '';
+      lineConfigContainer.appendChild(row);
+    });
+  }
+
+  function updateLineConfigFromInputs() {
+    const id = nodeIdInput.value.trim();
+    const extra = nodeExtraParentsInput.value.trim();
+    const parents = [];
+    const mainParent = inferParent(id);
+    if (mainParent && nodeStore.has(mainParent)) parents.push(mainParent);
+    if (extra) {
+      extra.split(',').map(s => s.trim()).filter(s => s && nodeStore.has(s)).forEach(p => {
+        if (!parents.includes(p)) parents.push(p);
+      });
+    }
+    const existing = {};
+    lineConfigContainer.querySelectorAll('.line-config-row').forEach(row => {
+      const pid = row.dataset.parentId;
+      if (parents.includes(pid)) {
+        existing[pid] = {
+          startSide: row.querySelector('.start-side').value,
+          endSide: row.querySelector('.end-side').value
+        };
+      }
+    });
+    renderLineConfig(parents, existing);
+  }
+  function updateSetNameAvailability() {
+    const isRoot = /^\d+$/.test(nodeIdInput.value.trim());
+    nodeSetNameInput.disabled = !isRoot;
+    nodeSetNameInput.style.opacity = isRoot ? '1' : '0.5';
+    nodeSetNameInput.style.cursor = isRoot ? 'text' : 'not-allowed';
+    if (!isRoot) nodeSetNameInput.value = '';
+  }
+  nodeIdInput.addEventListener('input', updateSetNameAvailability);
+  updateSetNameAvailability();
+
+  nodeIdInput.addEventListener('input', updateLineConfigFromInputs);
+  nodeExtraParentsInput.addEventListener('input', updateLineConfigFromInputs);
+
+  addNodeBtn.addEventListener('click', () => {
+    const id = nodeIdInput.value.trim();
+    const name = nodeNameInput.value.trim();
+    const desc = nodeDescInput.value.trim();
+    const conflictGroup = nodeConflictInput.value.trim() || null;
+    const dynamic = nodeDynamicInput.checked;
+    const setName = /^\d+$/.test(id) ? (nodeSetNameInput.value.trim() || null) : null;
+
+
+    if (!id) { showToast('请输入词条编号', true); return; }
+    if (!name) { showToast('请输入词条名称', true); return; }
+    if (!desc) { showToast('请输入词条描述', true); return; }
+
+    if (!/^\d+(\.\d+)*$/.test(id)) {
+      showToast('编号格式错误，应为数字和点，如 1、1.1、1.1.1', true);
+      return;
+    }
+
+    const parent = inferParent(id);
+    if (parent && !nodeStore.has(parent)) {
+      showToast(`父节点 "${parent}" 不存在，请先添加父节点`, true);
+      return;
+    }
+
+    let score;
+    if (nodeScoreInput.value.trim() !== '') {
+      score = parseInt(nodeScoreInput.value.trim());
+    } else {
+      score = extractScore(desc);
+    }
+
+    const icon = currentEditingIcon || null;
+    const isBinarized = currentEditingIconIsBinarized;
+    const isUpdate = nodeStore.has(id);
+
+    const gx = nodeGridX.value.trim() !== '' ? parseInt(nodeGridX.value) : null;
+    const gy = nodeGridY.value.trim() !== '' ? parseInt(nodeGridY.value) : null;
+
+    const extraParentsStr = nodeExtraParentsInput.value.trim();
+    const extraParents = extraParentsStr
+      ? extraParentsStr.split(',').map(s => s.trim()).filter(s => s && nodeStore.has(s))
+      : [];
+
+    const lineConfig = {};
+    lineConfigContainer.querySelectorAll('.line-config-row').forEach(row => {
+      const pid = row.dataset.parentId;
+      const startSide = row.querySelector('.start-side').value || null;
+      const endSide = row.querySelector('.end-side').value || null;
+      if (startSide || endSide) {
+        lineConfig[pid] = { startSide, endSide };
+      }
+    });
+
+    if (isUpdate) {
+      const existing = nodeStore.get(id);
+      existing.name = name;
+      existing.setName = setName;
+      existing.desc = desc;
+      existing.conflictGroup = conflictGroup;
+      existing.score = score;
+      existing.dynamic = dynamic;
+      existing.gridX = gx;
+      existing.gridY = gy;
+      existing.extraParents = extraParents;
+      existing.lineConfig = lineConfig;
+      if (icon) {
+        existing.icon = icon;
+        existing.isBinarized = isBinarized;
+      }
+      showToast(`词条 "${id}" 已更新`);
+    } else {
+      nodeStore.set(id, {
+        id, name, desc, parent, conflictGroup, score, dynamic, icon,
+        setName,
+        isBinarized, gridX: gx, gridY: gy,
+        extraParents, lineConfig
+      });
+
+      showToast(`词条 "${id}" 已添加`);
+    }
+
+    nodeIdInput.value = '';
+    nodeNameInput.value = '';
+    nodeDescInput.value = '';
+    nodeConflictInput.value = '';
+    nodeScoreInput.value = '';
+    nodeDynamicInput.checked = false;
+    nodeGridX.value = '';
+    nodeGridY.value = '';
+    nodeExtraParentsInput.value = '';
+    updateSetNameAvailability();
+    currentEditingIcon = null;
+    currentEditingIconIsBinarized = false;
+    currentEditingId = null;
+    iconPreview.innerHTML = '🖼️';
+    renderLineConfig([]);
+
+    renderNodeList();
+    updatePreview();
+  });
+
+  function resetEditing() {
+    currentEditingIcon = null;
+    currentEditingIconIsBinarized = false;
+    currentEditingId = null;
+    iconPreview.innerHTML = '🖼️';
+    renderLineConfig([]);
+    nodeSetNameInput.value = '';
+    updateSetNameAvailability();
+  }
+
+  function renderNodeList() {
+    const container = document.getElementById('nodeListContainer');
+    if (nodeStore.size === 0) {
+      container.innerHTML = '<div class="empty-tip">暂无词条，请在上方添加</div>';
+      return;
+    }
+    const sorted = Array.from(nodeStore.keys()).sort((a, b) => {
+      const da = getDepth(a), db = getDepth(b);
+      if (da !== db) return da - db;
+      return a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' });
+    });
+    let html = '';
+    sorted.forEach(id => {
+      const node = nodeStore.get(id);
+      const depth = getDepth(id);
+      const indent = '　'.repeat(depth);
+      html += `
+        <div class="node-list-item" data-id="${id}" style="border-left-color: ${depth === 0 ? '#aa4a4a' : depth === 1 ? '#8a4040' : '#6a3030'};">
+          <span class="node-id">${indent}${id}</span>
+          <span class="node-name">${node.name}</span>
+          ${node.conflictGroup ? `<span class="conflict-group-badge">⚡${node.conflictGroup}</span>` : ''}
+          ${node.dynamic ? `<span class="dynamic-badge">动态</span>` : ''}
+          <div class="node-actions">
+            <button class="edit-btn" data-id="${id}">编辑</button>
+            <button class="danger delete-btn" data-id="${id}">删除</button>
+          </div>
+        </div>
+      `;
+    });
+    container.innerHTML = html;
+
+    container.querySelectorAll('.edit-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const id = btn.dataset.id;
+        const node = nodeStore.get(id);
+        if (!node) return;
+        nodeIdInput.value = node.id;
+        nodeNameInput.value = node.name;
+        updateSetNameAvailability();
+        nodeSetNameInput.value = node.setName || '';
+        nodeDescInput.value = node.desc;
+        nodeConflictInput.value = node.conflictGroup || '';
+        nodeScoreInput.value = node.score || '';
+        nodeDynamicInput.checked = !!node.dynamic;
+        nodeGridX.value = node.gridX !== null && node.gridX !== undefined ? node.gridX : '';
+        nodeGridY.value = node.gridY !== null && node.gridY !== undefined ? node.gridY : '';
+        nodeExtraParentsInput.value = (node.extraParents || []).join(',');
+        if (node.icon) {
+          currentEditingIcon = node.icon;
+          currentEditingIconIsBinarized = node.isBinarized || false;
+          iconPreview.innerHTML = `<img src="${node.icon}" alt="icon" />`;
+        } else {
+          currentEditingIcon = null;
+          currentEditingIconIsBinarized = false;
+          iconPreview.innerHTML = '🖼️';
+        }
+        currentEditingId = id;
+        
+        const parents = [];
+        const mainParent = inferParent(node.id);
+        if (mainParent && nodeStore.has(mainParent)) parents.push(mainParent);
+        (node.extraParents || []).forEach(p => {
+          if (nodeStore.has(p) && !parents.includes(p)) parents.push(p);
+        });
+        renderLineConfig(parents, node.lineConfig || {});
+        
+        showToast(`正在编辑词条 "${id}"`);
+        document.querySelector('.form-panel').scrollTop = 0;
+      });
+    });
+
+    container.querySelectorAll('.delete-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const id = btn.dataset.id;
+        if (!confirm(`确定删除词条 "${id}" 及其所有子词条吗？`)) return;
+        const toDelete = getAllDescendants(id);
+        toDelete.add(id);
+        toDelete.forEach(did => nodeStore.delete(did));
+        renderNodeList();
+        updatePreview();
+        showToast(`已删除词条 "${id}" 及其子词条`);
+        if (currentEditingId === id) resetEditing();
+      });
+    });
+  }
+
+  // ==================== 背景裁剪弹窗逻辑 ====================
+  let bgCropImage = null;
+  let bgCropCanvas = null;
+  let bgCropCtx = null;
+  let bgCropScale = 1;
+  let bgCropOffset = { x: 0, y: 0 };
+  let bgCropCallback = null;
+  let bgCropAspect = 4;
+
+  function clampOffset(offset, imgSize, canvasSize) {
+    if (imgSize <= canvasSize) {
+      return Math.max(0, Math.min(canvasSize - imgSize, offset));
+    } else {
+      return Math.max(canvasSize - imgSize, Math.min(0, offset));
+    }
+  }
+
+  function openBgCropModal(imageSrc, aspectRatio, callback) {
+    const modal = document.getElementById('bgCropModal');
+    const wrap = document.getElementById('bgCropWrap');
+    bgCropCanvas = document.getElementById('bgCropCanvas');
+    bgCropCtx = bgCropCanvas.getContext('2d');
+    bgCropAspect = aspectRatio;
+
+    const maxW = Math.min(600, window.innerWidth - 80);
+    const displayW = maxW;
+    const displayH = Math.round(displayW / aspectRatio);
+    bgCropCanvas.width = displayW;
+    bgCropCanvas.height = displayH;
+    bgCropCanvas.style.width = displayW + 'px';
+    bgCropCanvas.style.height = displayH + 'px';
+    wrap.style.width = displayW + 'px';
+    wrap.style.height = displayH + 'px';
+
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => {
+      bgCropImage = img;
+      bgCropScale = Math.max(displayW / img.width, displayH / img.height);
+      bgCropOffset = {
+        x: (displayW - img.width * bgCropScale) / 2,
+        y: (displayH - img.height * bgCropScale) / 2
+      };
+      bgCropOffset.x = clampOffset(bgCropOffset.x, img.width * bgCropScale, displayW);
+      bgCropOffset.y = clampOffset(bgCropOffset.y, img.height * bgCropScale, displayH);
+      document.getElementById('bgCropZoom').value = bgCropScale;
+      document.getElementById('bgCropZoomValue').textContent = Math.round(bgCropScale * 100) + '%';
+      drawBgCrop();
+      modal.classList.add('active');
+    };
+    img.src = imageSrc;
+    bgCropCallback = callback;
+  }
+
+  function drawBgCrop() {
+    if (!bgCropImage) return;
+    bgCropCtx.clearRect(0, 0, bgCropCanvas.width, bgCropCanvas.height);
+    bgCropCtx.drawImage(bgCropImage, bgCropOffset.x, bgCropOffset.y, bgCropImage.width * bgCropScale, bgCropImage.height * bgCropScale);
+  }
+
+  function closeBgCropModal() {
+    document.getElementById('bgCropModal').classList.remove('active');
+    bgCropImage = null;
+    bgCropCallback = null;
+  }
+
+  (function() {
+    const wrap = document.getElementById('bgCropWrap');
+    let dragging = false;
+    let lastX = 0, lastY = 0;
+    wrap.addEventListener('mousedown', (e) => {
+      dragging = true;
+      lastX = e.clientX;
+      lastY = e.clientY;
+      e.preventDefault();
+    });
+    window.addEventListener('mousemove', (e) => {
+      if (!dragging || !bgCropImage) return;
+      const dx = e.clientX - lastX;
+      const dy = e.clientY - lastY;
+      lastX = e.clientX;
+      lastY = e.clientY;
+      bgCropOffset.x += dx;
+      bgCropOffset.y += dy;
+      bgCropOffset.x = clampOffset(bgCropOffset.x, bgCropImage.width * bgCropScale, bgCropCanvas.width);
+      bgCropOffset.y = clampOffset(bgCropOffset.y, bgCropImage.height * bgCropScale, bgCropCanvas.height);
+      drawBgCrop();
+    });
+    window.addEventListener('mouseup', () => { dragging = false; });
+  })();
+
+  document.getElementById('bgCropZoom').addEventListener('input', (e) => {
+    if (!bgCropImage) return;
+    const newScale = parseFloat(e.target.value);
+    const canvasW = bgCropCanvas.width;
+    const canvasH = bgCropCanvas.height;
+    const cx = canvasW / 2;
+    const cy = canvasH / 2;
+    const imgX = (cx - bgCropOffset.x) / bgCropScale;
+    const imgY = (cy - bgCropOffset.y) / bgCropScale;
+    bgCropScale = newScale;
+    bgCropOffset.x = cx - imgX * bgCropScale;
+    bgCropOffset.y = cy - imgY * bgCropScale;
+    bgCropOffset.x = clampOffset(bgCropOffset.x, bgCropImage.width * bgCropScale, canvasW);
+    bgCropOffset.y = clampOffset(bgCropOffset.y, bgCropImage.height * bgCropScale, canvasH);
+    document.getElementById('bgCropZoomValue').textContent = Math.round(bgCropScale * 100) + '%';
+    drawBgCrop();
+  });
+
+  document.getElementById('bgCropCancelBtn').addEventListener('click', closeBgCropModal);
+  document.getElementById('bgCropConfirmBtn').addEventListener('click', () => {
+    if (!bgCropImage || !bgCropCallback) return;
+    const out = document.createElement('canvas');
+    out.width = bgCropCanvas.width;
+    out.height = bgCropCanvas.height;
+    const ctx = out.getContext('2d');
+    ctx.drawImage(bgCropImage, bgCropOffset.x, bgCropOffset.y, bgCropImage.width * bgCropScale, bgCropImage.height * bgCropScale);
+    const dataUrl = out.toDataURL('image/png');
+    const cb = bgCropCallback;
+    closeBgCropModal();
+    cb(dataUrl);
+  });
+
+  // ==================== 生成选择器 HTML ====================
+  function generateSelectorHTML() {
+    const nodesData = [];
+    const sortedIds = Array.from(nodeStore.keys()).sort((a, b) => {
+      const da = getDepth(a), db = getDepth(b);
+      if (da !== db) return da - db;
+      return a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' });
+    });
+    sortedIds.forEach(id => {
+      const node = nodeStore.get(id);
+      nodesData.push({
+        id: node.id,
+        desc: node.desc,
+        parent: node.parent,
+        extraParents: node.extraParents || [],
+        conflictGroup: node.conflictGroup || null,
+        name: node.name,
+        setName: node.setName || null, 
+        icon: node.icon || null,
+        isBinarized: !!node.isBinarized,
+        score: node.score,
+        dynamic: !!node.dynamic,
+        gridX: node.gridX !== null && node.gridX !== undefined ? node.gridX : null,
+        gridY: node.gridY !== null && node.gridY !== undefined ? node.gridY : null,
+        lineConfig: node.lineConfig || {}
+      });
+    });
+
+    const treeBg = treeBgImage || 'https://media.prts.wiki/5/53/Avg_pic_rogue_6_6.png';
+    const setBg = setBgImage || 'https://media.prts.wiki/e/e1/Avg_pic_rogue_6_23.png';
+
+    const nodesDataStr = JSON.stringify(nodesData).replace(/`/g, '\\`').replace(/\$\{/g, '\\${');
+    const treeBgStr = treeBgImage ? JSON.stringify(treeBgImage).replace(/`/g, '\\`').replace(/\$\{/g, '\\${') : 'null';
+    const setBgStr = setBgImage ? JSON.stringify(setBgImage).replace(/`/g, '\\`').replace(/\$\{/g, '\\${') : 'null';
+    const fillTextureStr = fillTextureImage ? JSON.stringify(fillTextureImage).replace(/`/g, '\\`').replace(/\$\{/g, '\\${') : 'null';
+
+    return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>狂鹿作战 词条选择器 1.0.1</title>
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"><\/script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+      user-select: none;
+    }
+    body {
+      background: #0b0e14;
+      color: #e4e9f2;
+      height: 100vh;
+      overflow: hidden;
+      margin: 0;
+      padding: 12px;
+      box-sizing: border-box;
+    }
+    .app {
+      display: flex;
+      width: 100%;
+      height: 100%;
+      max-width: 1800px;
+      background: #14181f;
+      border-radius: 24px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.7), 0 0 0 1px #2e3a47 inset;
+      overflow: hidden;
+      backdrop-filter: blur(2px);
+      margin: 0 auto;
+    }
+    .left-panel {
+      flex: 3;
+      min-width: 0;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      border-right: 2px solid #2c3a4b;
+    }
+    .left-panel::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: url('${treeBg}') center/cover fixed no-repeat;
+      opacity: ${treeBgOpacity / 100};
+      z-index: 0;
+      pointer-events: none;
+    }
+    .toolbar, .tree-container, .h-slider-bar, .score-panel, .one-page-header, .one-page-footer {
+      position: relative;
+      z-index: 1;
+    }
+    .toolbar {
+      display: flex;
+      gap: 12px;
+      padding: 12px 20px;
+      background: #1b212b;
+      border-bottom: 1px solid #2f3d4e;
+      z-index: 20;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .toolbar button {
+      background: #28323f;
+      border: none;
+      color: #cfdbe9;
+      padding: 8px 20px;
+      border-radius: 30px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      letter-spacing: 0.3px;
+      cursor: pointer;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4), 0 0 0 1px #3f5063 inset;
+      transition: all 0.2s ease;
+    }
+    .toolbar button:hover {
+      background: #3b4a5e;
+      color: white;
+      box-shadow: 0 6px 12px #00000066, 0 0 0 1px #6d8bb0 inset;
+      transform: translateY(-1px);
+    }
+    .toolbar button:active {
+      transform: translateY(2px);
+      box-shadow: 0 2px 4px #00000066, 0 0 0 1px #6d8bb0 inset;
+    }
+    .code-area {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #11161e;
+      padding: 4px 12px;
+      border-radius: 40px;
+      border: 1px solid #314052;
+    }
+    .code-area input {
+      background: transparent;
+      border: none;
+      color: #b7cdff;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      padding: 8px 0;
+      width: 180px;
+      outline: none;
+    }
+    .code-area input::placeholder {
+      color: #4e6077;
+      font-style: italic;
+    }
+    .code-area button {
+      padding: 6px 16px;
+      font-size: 0.8rem;
+      background: #2f4055;
+      box-shadow: 0 2px 6px #00000033;
+    }
+    .difficulty-box {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: #11161e;
+      padding: 6px 14px;
+      border-radius: 40px;
+      border: 1px solid #314052;
+      margin-left: 8px;
+    }
+    .difficulty-box label {
+      font-size: 0.8rem;
+      color: #8fa5bb;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .difficulty-box input[type="range"] {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 120px;
+      height: 6px;
+      border-radius: 3px;
+      background: #0f131a;
+      border: 1px solid #2f3d4e;
+      outline: none;
+    }
+    .difficulty-box input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #ffaa33;
+      border: 2px solid #1a0e0e;
+      cursor: pointer;
+      box-shadow: 0 0 8px #ffaa3388;
+    }
+    .difficulty-box input[type="range"]::-moz-range-thumb {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #ffaa33;
+      border: 2px solid #1a0e0e;
+      cursor: pointer;
+      box-shadow: 0 0 8px #ffaa3388;
+    }
+    .difficulty-box .diff-value {
+      min-width: 28px;
+      text-align: center;
+      font-size: 1rem;
+      font-weight: 800;
+      color: #ffaa33;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .tree-container {
+      flex: 1;
+      position: relative;
+      overflow: auto;
+      scrollbar-width: thin;
+      scrollbar-color: #3e5064 #1a212b;
+    }
+    .tree-container::-webkit-scrollbar {
+      width: 8px;
+      height: 0px;
+    }
+    .tree-container::-webkit-scrollbar-track {
+      background: #1a212b;
+      border-radius: 10px;
+    }
+    .tree-container::-webkit-scrollbar-thumb {
+      background: #3e5064;
+      border-radius: 10px;
+      border: 1px solid #1a212b;
+    }
+    .tree-canvas {
+      position: relative;
+    }
+    /* 水平滑动条 */
+    .h-slider-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      background: #1b212b;
+      border-top: 1px solid #2f3d4e;
+      flex-shrink: 0;
+      z-index: 26;
+    }
+    .h-slider-btn {
+      background: #28323f;
+      border: none;
+      color: #cfdbe9;
+      width: 24px;
+      height: 20px;
+      border-radius: 12px;
+      font-size: 0.6rem;
+      cursor: pointer;
+      box-shadow: 0 2px 4px #00000033, 0 0 0 1px #3f5063 inset;
+      transition: all 0.15s;
+      line-height: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .h-slider-btn:hover { background: #3b4a5e; color: #fff; }
+    .h-slider-track {
+      position: relative;
+      flex: 1;
+      height: 12px;
+      background: #0f131a;
+      border: 1px solid #2f3d4e;
+      border-radius: 8px;
+      cursor: pointer;
+      overflow: hidden;
+    }
+    .h-slider-thumb {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
+      min-width: 36px;
+      background: linear-gradient(90deg, #ffaa33, #ff7700);
+      border-radius: 8px;
+      cursor: grab;
+      transition: opacity 0.2s;
+      box-shadow: 0 0 8px #ffaa3366;
+    }
+    .h-slider-thumb.dragging { cursor: grabbing; }
+    .h-slider-thumb.disabled { opacity: 0.3; cursor: default; }
+    .root-set-bg {
+      position: absolute;
+      pointer-events: none;
+      z-index: 0;
+      border-radius: 0;
+      background-size: cover;
+      background-position: center;
+      box-shadow: 0 0 0 1px #ffffff22 inset, 0 8px 24px #00000044;
+      border: 1px solid #ffffff18;
+      transition: box-shadow 0.2s;
+    }
+    .node {
+      position: absolute;
+      width: 100px;
+      height: auto;
+      border-radius: 0;
+      background: transparent;
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      justify-content: flex-start;
+      color: #fff;
+      font-weight: 600;
+      font-size: 0.7rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      z-index: 10;
+      border: none;
+      box-shadow: 0 4px 0 #0a0707;
+      line-height: 1.2;
+      padding: 0;
+      word-break: break-word;
+      overflow: hidden;
+      box-sizing: border-box;
+    }
+    .node .node-inner {
+      position: relative;
+      z-index: 2;
+      flex: 0 0 100px;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      padding: 4px;
+      border-radius: 0;
+      box-sizing: border-box;
+      overflow: hidden;
+    }
+    .node .node-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 0;
+      filter: drop-shadow(0 2px 2px #000);
+    }
+    /* 词条底部的黑色分数区域（扩大后固定显示分数） */
+    .node .score-badge {
+      position: relative;
+      z-index: 3;
+      flex: 0 0 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 24px;
+      background: #000000;
+      color: #ffffff;
+      font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', Arial, sans-serif;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      text-shadow: none;
+      box-sizing: border-box;
+      line-height: 1;
+    }
+    .node[data-depth="0"] { font-size: 0.8rem; }
+    .node[data-depth="1"] { font-size: 0.8rem; }
+    .node[data-depth="2"] { font-size: 0.8rem; }
+    .node[data-depth="3"] { font-size: 0.8rem; }
+    .node.selected {
+      background-color: transparent;
+      color: #fff;
+    }
+    .node.disabled {
+      opacity: 0.4;
+      filter: grayscale(1);
+      cursor: not-allowed;
+      pointer-events: none;
+      background-color: #1a1a1a;
+      box-shadow: none;
+    }
+    .node:not(.disabled):hover {
+      box-shadow: 0 0 15px ${globalThemeColor}, 0 4px 0 #4a0a0a;
+      z-index: 30;
+    }
+    .node:focus {
+      outline: none;
+    }
+    .line-layer {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+      overflow: visible;
+    }
+    .line-path {
+      fill: none;
+      stroke: #DFDFDF;
+      stroke-width: 7;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      opacity: 0.75;
+      transition: stroke 0.2s;
+    }
+    .line-path.active {
+      stroke: ${useFill ? 'url(#activeLineFill)' : globalThemeColor};
+      opacity: 1;
+    }
+    .root-dot {
+      position: absolute;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: #14181f;
+      border: 3px solid #DFDFDF;
+      z-index: 5;
+      pointer-events: none;
+      transform: translate(-50%, -50%);
+      transition: all 0.2s;
+    }
+    .root-dot.active {
+      border-color: ${useFill ? 'url(#activeLineFill)' : globalThemeColor};
+      background: #2a1e1e;
+    }
+    .right-panel {
+      flex: 1;
+      min-width: 300px;
+      background: url('${setBg}') center/cover fixed no-repeat;
+      display: flex;
+      flex-direction: column;
+      border-left: 1px solid #25303d;
+      overflow: hidden;
+    }
+    .selected-header {
+      padding: 20px 20px 12px 20px;
+      border-bottom: 1px solid #26313e;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #151c25;
+      box-shadow: 0 4px 12px #00000033;
+    }
+    .selected-header h2 {
+      font-size: 1.2rem;
+      font-weight: 500;
+      letter-spacing: 1px;
+      color: #b6d0ea;
+      text-shadow: 0 0 12px #3a73a8;
+    }
+    .selected-header span {
+      background: #293644;
+      padding: 4px 12px;
+      border-radius: 30px;
+      font-size: 0.8rem;
+      color: #b0cef0;
+      font-weight: 600;
+    }
+    .text-scroll {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px 16px 30px 16px;
+      scrollbar-width: thin;
+      scrollbar-color: #3e5064 #1a212b;
+      scroll-behavior: smooth;
+    }
+    .text-scroll::-webkit-scrollbar { width: 6px; }
+    .text-scroll::-webkit-scrollbar-track { background: #1a212b; }
+    .text-scroll::-webkit-scrollbar-thumb { background: #3e5064; border-radius: 10px; }
+    .text-entry {
+      padding: 14px 16px;
+      margin-bottom: 12px;
+      background: #1a232f;
+      border-radius: 8px;
+      border-left: 4px solid #cc3333;
+      box-shadow: 0 4px 10px #00000033, 0 0 0 1px #2b3c4e inset;
+      transition: all 0.2s;
+      animation: fadeSlide 0.3s ease;
+      color: #cbdae9;
+    }
+    .text-entry .entry-id {
+      font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+      font-size: 0.92rem;
+      color: #ffcc88;
+      letter-spacing: 0.3px;
+      margin-bottom: 6px;
+      font-weight: 700;
+    }
+
+    .text-entry .entry-desc {
+      font-size: 0.9rem;
+      line-height: 1.5;
+      word-break: break-word;
+      color: #dfeaf5;
+      margin-bottom: 6px;
+    }
+    .text-entry .entry-score {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: #ffaa33;
+      letter-spacing: 0.5px;
+    }
+    .text-entry.highlight {
+      border-left-color: #ffaa33;
+      background: #2f241d;
+      box-shadow: 0 0 0 2px #ffaa33, 0 6px 14px #00000055;
+    }
+    @keyframes fadeSlide {
+      from { opacity: 0; transform: translateX(12px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+    .empty-message {
+      color: #596b7e;
+      font-style: italic;
+      text-align: center;
+      padding: 40px 20px;
+      font-size: 0.95rem;
+      border: 1px dashed #2d3e50;
+      border-radius: 20px;
+      margin-top: 20px;
+    }
+    .tooltip {
+      position: fixed;
+      background: #2a1e1e;
+      color: #fff;
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      max-width: 260px;
+      box-shadow: 0 10px 25px #000000, 0 0 0 1px #cc3333 inset;
+      pointer-events: none;
+      z-index: 999;
+      transition: opacity 0.15s;
+      border-left: 6px solid #cc3333;
+    }
+    .toolbar-group { display: flex; gap: 6px; }
+    .root-actions {
+      position: absolute;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      z-index: 40;
+      pointer-events: auto;
+      transform: translateX(-50%);
+    }
+    .root-actions button {
+      background: #28323f;
+      border: none;
+      color: #cfdbe9;
+      padding: 3px 8px;
+      border-radius: 20px;
+      font-weight: 600;
+      font-size: 0.6rem;
+      letter-spacing: 0.2px;
+      cursor: pointer;
+      box-shadow: 0 3px 6px rgba(0, 0, 0, 0.5), 0 0 0 1px #3f5063 inset;
+      transition: all 0.15s ease;
+      white-space: nowrap;
+      backdrop-filter: blur(2px);
+      width: 100%;
+      text-align: center;
+    }
+    .root-actions button:hover {
+      background: #3b4a5e;
+      color: #fff;
+      box-shadow: 0 5px 10px #00000066, 0 0 0 1px #6d8bb0 inset;
+      transform: translateY(-1px);
+    }
+    .root-actions button:active {
+      transform: translateY(1px);
+      box-shadow: 0 2px 4px #00000066, 0 0 0 1px #6d8bb0 inset;
+    }
+    .root-actions .select-root-btn::before { content: "✅ "; font-size: 0.65rem; margin-right: 2px; }
+    .root-actions .deselect-root-btn::before { content: "❌ "; font-size: 0.65rem; margin-right: 2px; }
+    .score-panel {
+      position: absolute;
+      right: 16px;
+      bottom: 16px;
+      z-index: 50;
+      background: rgba(20, 24, 31, 0.92);
+      border: 1px solid #3f5063;
+      border-radius: 12px;
+      padding: 12px 16px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.6), 0 0 0 1px #2e3a47 inset;
+      pointer-events: none;
+      min-width: 160px;
+      backdrop-filter: blur(4px);
+      font-weight: 800;
+      color: #e4e9f2;
+    }
+    .score-panel .score-title {
+      font-size: 0.75rem;
+      color: #8fa5bb;
+      font-weight: 700;
+      letter-spacing: 1px;
+      margin-bottom: 6px;
+    }
+    .score-panel .score-total {
+      font-size: 1.5rem;
+      color: #ffaa33;
+      line-height: 1.2;
+      margin-bottom: 8px;
+    }
+    .score-panel .score-root-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      font-size: 0.8rem;
+      color: #cbdae9;
+      padding: 2px 0;
+    }
+    .score-panel .score-root-row .root-id { color: #ff8866; }
+    .score-panel .score-root-row .root-score { color: #ffdd88; }
+    .export-img-btn {
+      background: #2f4055;
+      border: none;
+      color: #cfdbe9;
+      padding: 8px 20px;
+      border-radius: 30px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4), 0 0 0 1px #3f5063 inset;
+      transition: all 0.2s ease;
+    }
+    .export-img-btn:hover {
+      background: #3b4a5e;
+      color: white;
+      transform: translateY(-1px);
+    }
+    .contract-conflict {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: transparent !important;
+      z-index: 9999;
+      border-radius: 0;
+      pointer-events: none;
+      box-sizing: border-box;
+      display: flex;
+      flex-wrap: wrap;
+    }
+    .contract-conflict .cf-char {
+      position: absolute;
+      color: #ffffff;
+      font-size: 2.6rem;
+      font-weight: 900;
+      line-height: 1;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.8), 0 0 10px rgba(0,0,0,1);
+    }
+    .contract-conflict .cf-char:nth-child(1) { top: 2px; left: 4px; }
+    .contract-conflict .cf-char:nth-child(2) { top: 2px; right: 4px; }
+    .contract-conflict .cf-char:nth-child(3) { bottom: 2px; left: 4px; }
+    .contract-conflict .cf-char:nth-child(4) { bottom: 2px; right: 4px; }
+
+    .export-modal {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.85);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+      padding: 20px;
+    }
+    .export-modal.active { display: flex; }
+    .export-content {
+      background: #14181f;
+      border-radius: 20px;
+      max-width: 900px;
+      width: 96%;
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: 24px;
+      box-shadow: 0 20px 50px #000;
+      border: 1px solid #2f3d4e;
+    }
+    .export-content h2 {
+      color: #b6d0ea;
+      margin-bottom: 16px;
+      font-size: 1.3rem;
+    }
+    .export-section {
+      margin-bottom: 20px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid #2a3644;
+    }
+    .export-section h3 {
+      color: #8fa5bb;
+      font-size: 0.95rem;
+      margin-bottom: 10px;
+    }
+    .export-bg-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 10px;
+      background: #1a232f;
+      padding: 8px 12px;
+      border-radius: 10px;
+      flex-wrap: wrap;
+    }
+    .export-bg-row .bg-name { flex: 1; color: #cbdae9; font-size: 0.85rem; white-space: nowrap; }
+    .export-bg-row button { padding: 6px 14px; font-size: 0.75rem; }
+    .export-bg-row img {
+      width: 60px; height: 36px; object-fit: cover; border-radius: 6px;
+      border: 1px solid #2f3d4e;
+    }
+    .export-input-row { display: flex; gap: 12px; margin-bottom: 12px; align-items: center; }
+    .export-input-row input[type="text"] { flex: 1; }
+    .export-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      margin-top: 20px;
+    }
+    .export-actions button {
+      padding: 10px 24px;
+      border-radius: 30px;
+      border: none;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .export-actions .primary { background: #2f4055; color: #cfdbe9; }
+    .export-actions .secondary { background: #2a1e1e; color: #cfdbe9; }
+
+    .bg-crop-modal {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.85);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 3000;
+    }
+    .bg-crop-modal.active { display: flex; }
+    .bg-crop-content {
+      background: #14181f;
+      border-radius: 16px;
+      padding: 20px;
+      max-width: 90vw;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 20px 40px #000;
+    }
+    .bg-crop-content h3 { color: #b6d0ea; margin-bottom: 12px; }
+    .bg-crop-canvas-wrap {
+      position: relative;
+      background: #000;
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 12px;
+      cursor: move;
+    }
+    .bg-crop-canvas-wrap canvas { display: block; max-width: 100%; }
+    .bg-crop-slider-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+      font-size: 0.85rem;
+      color: #8fa5bb;
+    }
+    .bg-crop-slider-row input[type="range"] { flex: 1; }
+    .bg-crop-actions { display: flex; justify-content: flex-end; gap: 12px; }
+    .bg-crop-actions button {
+      padding: 8px 20px;
+      border-radius: 20px;
+      border: none;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .one-page-header {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      gap: 20px;
+      padding: 20px 40px 0 40px;
+    }
+    .one-page-header .player-info {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 2px;
+    }
+    .one-page-header .player-info .label {
+      font-size: 0.9rem;
+      color: #8fa5bb;
+      font-weight: 600;
+      letter-spacing: 1px;
+    }
+    .one-page-header .player-info .name {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #ffffff;
+      text-shadow: 0 2px 8px #000;
+      line-height: 1.1;
+    }
+    .one-page-header .avatar {
+      width: 96px;
+      height: 96px;
+      border-radius: 20px;
+      object-fit: cover;
+      border: 3px solid #ffffff44;
+      box-shadow: 0 4px 16px #000;
+      background: #2a1e1e;
+    }
+    .one-page-footer {
+      position: relative;
+      margin: 0 30px 30px 30px;
+      padding: 20px 40px;
+      display: flex;
+      align-items: baseline;
+      justify-content: flex-start;
+      gap: 20px;
+      border-radius: 16px;
+      box-shadow: 0 8px 24px #00000055;
+      overflow: hidden;
+    }
+    .one-page-footer .score-label {
+      position: relative;
+      z-index: 1;
+      font-size: 3.2rem;
+      font-weight: 700;
+      color: #ffffff;
+      text-shadow: 0 2px 6px #000;
+    }
+    .one-page-footer .score-number {
+      position: relative;
+      z-index: 1;
+      font-size: 16.5rem;
+      font-weight: 900;
+      color: #ffffff;
+      line-height: 0.9;
+      text-shadow: 0 4px 12px #000;
+      font-family: 'Arial Black', 'Impact', sans-serif;
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+  <div class="left-panel" id="leftPanel">
+    <div class="toolbar" id="toolbar">
+      <div class="toolbar-group">
+        <button id="selectAllBtn">✅ 全选</button>
+        <button id="deselectAllBtn">❌ 取消全选</button>
+      </div>
+      <button id="exportBtn">📋 导出代码</button>
+      <button id="importBtn">📥 导入代码</button>
+      <button id="exportImageBtn" class="export-img-btn">🖼️ 导出一图流</button>
+      <div class="difficulty-box">
+        <label>难度</label>
+        <input type="range" id="difficultySlider" min="0" max="18" step="1" value="${initialDifficulty}" />
+        <span class="diff-value" id="difficultyDisplay">${initialDifficulty}</span>
+      </div>
+      <div class="code-area">
+        <input type="text" id="codeInput" placeholder="粘贴词条代码, 如 1.1,2.1.2..." />
+        <button id="applyCodeBtn">应用</button>
+      </div>
+    </div>
+    <div class="tree-container" id="treeContainer" tabindex="0"></div>
+    <div class="h-slider-bar" id="hSliderBar">
+      <button class="h-slider-btn" id="hScrollLeftBtn" title="向左滚动">◀</button>
+      <div class="h-slider-track" id="hSliderTrack">
+        <div class="h-slider-thumb" id="hSliderThumb"></div>
+      </div>
+      <button class="h-slider-btn" id="hScrollRightBtn" title="向右滚动">▶</button>
+    </div>
+    <div class="score-panel" id="scorePanel">
+      <div class="score-title">总分</div>
+      <div class="score-total" id="scoreTotal">0</div>
+      <div id="scoreRootList"></div>
+    </div>
+  </div>
+
+  <div class="right-panel">
+    <div class="selected-header">
+      <h2>已选词条</h2>
+      <span id="selectedCount">0</span>
+    </div>
+    <div class="text-scroll" id="textScroll"></div>
+  </div>
+</div>
+
+<div class="export-modal" id="exportModal">
+  <div class="export-content">
+    <h2>🖼️ 生成一图流</h2>
+    <div class="export-section">
+      <h3>指标集背景</h3>
+      <div id="exportBgList"></div>
+    </div>
+    <div class="export-section">
+      <h3>总分区域背景</h3>
+      <div class="export-input-row">
+        <label style="color:#8fa5bb;font-size:0.85rem; white-space:nowrap;">背景类型：</label>
+        <select id="scoreBgType" style="flex:1;background:#0f131a;color:#dfeaf5;border:1px solid #2f3d4e;border-radius:8px;padding:8px;">
+          <option value="theme">主题色</option>
+          <option value="gradient">渐变</option>
+          <option value="texture">纹理</option>
+          <option value="image">上传图片</option>
+        </select>
+        <button id="uploadScoreBgBtn" style="display:none;padding:6px 14px;font-size:0.75rem;">上传图片</button>
+        <input type="file" id="scoreBgFileInput" accept="image/*" style="display:none;" />
+      </div>
+      <div class="export-input-row">
+        <label style="color:#8fa5bb;font-size:0.85rem; white-space:nowrap;">透明度：</label>
+        <input type="range" id="scoreBgOpacity" min="0" max="100" value="100" class="range-slider" />
+        <span id="scoreBgOpacityValue" style="color:#8fa5bb;font-size:0.85rem; width:40px; text-align:right;">100%</span>
+      </div>
+    </div>
+    <div class="export-section">
+      <h3>选手信息</h3>
+      <div class="export-input-row">
+        <input type="text" id="playerNameInput" placeholder="选手名称" value="天离beta" style="background:#0f131a;color:#dfeaf5;border:1px solid #2f3d4e;border-radius:8px;padding:10px;" />
+        <button id="uploadAvatarBtn" style="padding:8px 16px;">上传头像</button>
+        <input type="file" id="avatarFileInput" accept="image/*" style="display:none;" />
+        <img id="avatarPreview" style="width:48px;height:48px;border-radius:10px;object-fit:cover;display:none;border:1px solid #2f3d4e;" />
+      </div>
+    </div>
+    <div class="export-actions">
+      <button class="secondary" id="exportCancelBtn">取消</button>
+      <button class="primary" id="exportConfirmBtn">确认生成</button>
+    </div>
+  </div>
+</div>
+
+<div class="bg-crop-modal" id="bgCropModal">
+  <div class="bg-crop-content">
+    <h3>✂️ 裁剪背景</h3>
+    <div class="bg-crop-canvas-wrap" id="bgCropWrap">
+      <canvas id="bgCropCanvas"></canvas>
+    </div>
+    <div class="bg-crop-slider-row">
+      <span>缩放</span>
+      <input type="range" id="bgCropZoom" min="0.1" max="5" step="0.01" value="1" />
+      <span id="bgCropZoomValue">100%</span>
+    </div>
+    <div class="bg-crop-actions">
+      <button class="secondary" id="bgCropCancelBtn">取消</button>
+      <button class="primary" id="bgCropConfirmBtn">确认</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const nodesData = ${nodesDataStr};
+  let difficulty = ${initialDifficulty};
+  const treeBgImage = ${treeBgStr};
+  const treeBgOpacity = ${treeBgOpacity};
+  const setBgImage = ${setBgStr};
+  const setBgOpacity = ${setBgOpacity};
+  const globalThemeColor = "${globalThemeColor}";
+  const useFill = ${useFill};
+  const fillType = "${fillType}";
+  const gradientColor1 = "${gradientColor1}";
+  const gradientColor2 = "${gradientColor2}";
+  const gradientAngle = ${gradientAngle};
+  const fillTextureImage = ${fillTextureStr};
+
+  const nodeMap = new Map();
+  nodesData.forEach(n => {
+    n.parents = [];
+    if (n.parent) n.parents.push(n.parent);
+    if (n.extraParents) {
+      n.extraParents.forEach(p => {
+        if (nodeMap.has(p) && !n.parents.includes(p)) n.parents.push(p);
+      });
+    }
+    nodeMap.set(n.id, { ...n, children: [] });
+  });
+
+  nodesData.forEach(n => {
+    if (n.parent && nodeMap.has(n.parent)) {
+      nodeMap.get(n.parent).children.push(n.id);
+    }
+  });
+
+  nodeMap.forEach((node, id) => {
+    node.parents = [];
+    if (node.parent) node.parents.push(node.parent);
+    if (node.extraParents) {
+      node.extraParents.forEach(p => {
+        if (nodeMap.has(p) && !node.parents.includes(p)) node.parents.push(p);
+      });
+    }
+  });
+
+  function getDepth(id) {
+    let depth = 0;
+    let cur = id;
+    while (nodeMap.get(cur)?.parent) {
+      depth++;
+      cur = nodeMap.get(cur).parent;
+    }
+    return depth;
+  }
+
+  const conflictGroups = new Map();
+  nodesData.forEach(n => {
+    if (n.conflictGroup && n.parent) {
+      const key = \`\${n.parent}_\${n.conflictGroup}\`;
+      if (!conflictGroups.has(key)) conflictGroups.set(key, []);
+      conflictGroups.get(key).push(n.id);
+    }
+  });
+
+  function dynamicScore(x) {
+    const base = 5 * x;
+    const extra = x > 10 ? (x - 10) * (x - 10) : 0;
+    return base + extra;
+  }
+
+  function getEffectiveScore(node) {
+    if (!node) return 0;
+    if (node.dynamic) return dynamicScore(difficulty);
+    return typeof node.score === 'number' ? node.score : 0;
+  }
+
+  function parseNodeTitle(node) {
+    let title = node.name || node.desc?.slice(0, 10) || node.id;
+    if (title.length > 10) title = title.slice(0, 9) + '…';
+    return title;
+  }
+
+  function hexToRgb(hex) {
+    const m = hex.match(/^#?([a-f\\d]{2})([a-f\\d]{2})([a-f\\d]{2})$/i);
+    if (!m) return {r:255,g:170,b:51};
+    return { r: parseInt(m[1],16), g: parseInt(m[2],16), b: parseInt(m[3],16) };
+  }
+
+  let textureImageData = null;
+  let textureLoaded = false;
+  function loadTextureImage() {
+    if (!fillTextureImage || fillType !== 'texture' || !useFill) return;
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => {
+      const c = document.createElement('canvas');
+      c.width = img.width;
+      c.height = img.height;
+      const ctx = c.getContext('2d');
+      ctx.drawImage(img, 0, 0);
+      textureImageData = ctx.getImageData(0, 0, c.width, c.height);
+      textureLoaded = true;
+    };
+    img.src = fillTextureImage;
+  }
+  loadTextureImage();
+
+  let selectedIds = new Set();
+  let lastToggledId = null;
+
+  function hasConflict(id) {
+    const node = nodeMap.get(id);
+    if (!node.conflictGroup || !node.parent) return false;
+    const key = \`\${node.parent}_\${node.conflictGroup}\`;
+    const groupIds = conflictGroups.get(key) || [];
+    for (let otherId of groupIds) {
+      if (otherId !== id && selectedIds.has(otherId)) return true;
+    }
+    return false;
+  }
+
+  function getAncestors(id) {
+    const result = new Set();
+    const queue = [...(nodeMap.get(id)?.parents || [])];
+    while (queue.length) {
+      const pid = queue.shift();
+      if (!pid || result.has(pid)) continue;
+      result.add(pid);
+      const pnode = nodeMap.get(pid);
+      if (pnode) pnode.parents?.forEach(pp => queue.push(pp));
+    }
+    return Array.from(result);
+  }
+
+  function refreshNodeStates() {
+    const container = document.getElementById('treeContainer');
+    const nodeDivs = container.querySelectorAll('.node');
+    nodeDivs.forEach(div => {
+      const id = div.dataset.id;
+      const selected = selectedIds.has(id);
+      const conflict = hasConflict(id);
+      
+      div.classList.toggle('selected', selected);
+      div.classList.remove('disabled');
+      
+      const existingTag = div.querySelector('.contract-conflict');
+      if (existingTag) existingTag.remove();
+
+      const inner = div.querySelector('.node-inner');
+      const badge = div.querySelector('.score-badge');
+
+      if (conflict && !selected) {
+        div.style.setProperty('height', '100px', 'important');
+        if (useFill) {
+          div.style.setProperty('background-color', 'transparent', 'important');
+        } else {
+          div.style.setProperty('background-color', globalThemeColor, 'important');
+        }
+        if (inner) {
+          inner.style.setProperty('background-image', 'none', 'important');
+          inner.style.setProperty('display', 'none', 'important');
+        }
+        if (badge) badge.style.setProperty('display', 'none', 'important');
+
+
+        const tag = document.createElement('div');
+        tag.className = 'contract-conflict';
+        tag.innerHTML = \`
+          <span class="cf-char">合</span>
+          <span class="cf-char">约</span>
+          <span class="cf-char">冲</span>
+          <span class="cf-char">突</span>
+        \`;
+        div.appendChild(tag);
+      } else {
+        div.style.removeProperty('height');
+        div.style.removeProperty('background-image');
+        div.style.removeProperty('background-color');
+        if (inner) {
+          inner.style.removeProperty('background-image');
+          inner.style.removeProperty('background-color');
+          inner.style.removeProperty('display');
+        }
+        if (badge) badge.style.removeProperty('display');
+      }
+
+    });
+  }
+
+  function cascadeDeselect(id) {
+    const node = nodeMap.get(id);
+    if (!node) return;
+    node.children.forEach(childId => {
+      if (selectedIds.has(childId)) {
+        selectedIds.delete(childId);
+        cascadeDeselect(childId);
+      }
+    });
+  }
+
+  function resolveConflictFor(id) {
+    const node = nodeMap.get(id);
+    if (!node || !node.conflictGroup || !node.parent) return;
+    const key = \`\${node.parent}_\${node.conflictGroup}\`;
+    const groupIds = conflictGroups.get(key) || [];
+    for (let otherId of groupIds) {
+      if (otherId !== id && selectedIds.has(otherId)) {
+        selectedIds.delete(otherId);
+        cascadeDeselect(otherId);
+      }
+    }
+  }
+
+  function selectAncestorChain(id) {
+    const ancestors = getAncestors(id).sort((a,b) => getDepth(a) - getDepth(b));
+    for (const anc of ancestors) {
+      if (selectedIds.has(anc)) continue;
+      if (hasConflict(anc)) continue;
+      resolveConflictFor(anc);
+      selectedIds.add(anc);
+    }
+  }
+
+  function selectNode(id) {
+    if (selectedIds.has(id)) return false;
+    const node = nodeMap.get(id);
+    if (!node) return false;
+    resolveConflictFor(id);
+    selectAncestorChain(id);
+    selectedIds.add(id);
+    return true;
+  }
+
+  function deselectNode(id) {
+    if (!selectedIds.has(id)) return false;
+    selectedIds.delete(id);
+    cascadeDeselect(id);
+    return true;
+  }
+
+  function toggleNode(id) {
+    if (selectedIds.has(id)) {
+      deselectNode(id);
+      lastToggledId = null;
+    } else {
+      if (selectNode(id)) {
+        lastToggledId = id;
+      } else {
+        return;
+      }
+    }
+    refreshNodeStates();
+    updateCount();
+    renderTextPanelWithScroll(lastToggledId);
+    updateLineHighlights();
+    updateAllNodeAppearance();
+  }
+
+  function getNodesUnderRoot(rootId) {
+    const result = new Set();
+    function dfs(id) {
+      result.add(id);
+      const node = nodeMap.get(id);
+      if (node) node.children.forEach(child => dfs(child));
+    }
+    dfs(rootId);
+    return result;
+  }
+
+  function getNodeScore(id) {
+    const node = nodeMap.get(id);
+    return getEffectiveScore(node);
+  }
+
+  function selectAll() {
+    selectedIds.clear();
+    const allIds = nodesData.map(n => n.id).sort((a, b) => {
+      const da = getDepth(a), db = getDepth(b);
+      if (da !== db) return da - db;
+      return a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' });
+    });
+    const blocked = new Set();
+    for (const id of allIds) {
+      let cur = id;
+      let ancestorBlocked = false;
+      while (nodeMap.get(cur)?.parent) {
+        cur = nodeMap.get(cur).parent;
+        if (blocked.has(cur)) { ancestorBlocked = true; break; }
+      }
+      if (ancestorBlocked) { blocked.add(id); continue; }
+      if (selectedIds.has(id)) continue;
+      if (hasConflict(id)) { blocked.add(id); continue; }
+      const ok = selectNode(id);
+      if (!ok) blocked.add(id);
+    }
+    refreshNodeStates();
+    updateCount();
+    renderTextPanelWithScroll(null);
+    updateLineHighlights();
+    updateAllNodeAppearance();
+  }
+
+  function deselectAll() {
+    selectedIds.clear();
+    refreshNodeStates();
+    updateCount();
+    renderTextPanelWithScroll(null);
+    updateLineHighlights();
+    updateAllNodeAppearance();
+  }
+
+  function selectRoot(rootId) {
+    const rootNodes = getNodesUnderRoot(rootId);
+    const candidateIds = Array.from(rootNodes);
+    if (!selectedIds.has(rootId)) selectedIds.add(rootId);
+    const childCandidates = candidateIds.filter(id => id !== rootId);
+    const conflictMap = new Map();
+    const nonConflictIds = [];
+    childCandidates.forEach(id => {
+      const node = nodeMap.get(id);
+      if (node && node.conflictGroup && node.parent) {
+        const key = \`\${node.parent}_\${node.conflictGroup}\`;
+        if (!conflictMap.has(key)) conflictMap.set(key, []);
+        conflictMap.get(key).push(id);
+      } else {
+        nonConflictIds.push(id);
+      }
+    });
+    rootNodes.forEach(id => {
+      if (id !== rootId && selectedIds.has(id)) {
+        selectedIds.delete(id);
+        cascadeDeselect(id);
+      }
+    });
+    nonConflictIds.forEach(id => {
+      if (!selectedIds.has(id)) {
+        resolveConflictFor(id);
+        selectAncestorChain(id);
+        selectedIds.add(id);
+      }
+    });
+    conflictMap.forEach((ids, key) => {
+      let bestId = null;
+      let bestScore = -1;
+      ids.forEach(id => {
+        const score = getNodeScore(id);
+        if (score > bestScore) {
+          bestScore = score;
+          bestId = id;
+        } else if (score === bestScore && bestId !== null) {
+          if (id.localeCompare(bestId, undefined, { numeric: true, sensitivity: 'base' }) < 0) {
+            bestId = id;
+          }
+        }
+      });
+      if (bestId) {
+        selectAncestorChain(bestId);
+        if (!hasConflict(bestId)) {
+          selectedIds.add(bestId);
+        } else {
+          const node = nodeMap.get(bestId);
+          if (node.conflictGroup && node.parent) {
+            const k = \`\${node.parent}_\${node.conflictGroup}\`;
+            const gIds = conflictGroups.get(k) || [];
+            for (let otherId of gIds) {
+              if (otherId !== bestId && selectedIds.has(otherId)) {
+                selectedIds.delete(otherId);
+                cascadeDeselect(otherId);
+              }
+            }
+          }
+          selectedIds.add(bestId);
+        }
+      }
+    });
+    refreshNodeStates();
+    updateCount();
+    renderTextPanelWithScroll(null);
+    updateLineHighlights();
+    updateAllNodeAppearance();
+  }
+
+  function deselectRoot(rootId) {
+    const rootNodes = getNodesUnderRoot(rootId);
+    rootNodes.forEach(id => {
+      if (selectedIds.has(id)) selectedIds.delete(id);
+    });
+    refreshNodeStates();
+    updateCount();
+    renderTextPanelWithScroll(null);
+    updateLineHighlights();
+    updateAllNodeAppearance();
+  }
+
+  function renderTextPanelWithScroll(targetId) {
+    const scrollContainer = document.getElementById('textScroll');
+    const selectedArray = Array.from(selectedIds).filter(id => nodeMap.has(id));
+    selectedArray.sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }));
+    if (selectedArray.length === 0) {
+      scrollContainer.innerHTML = \`<div class="empty-message">⚡ 尚未选择任何词条<br><span style="font-size:0.75rem;">点击左侧图标开始</span></div>\`;
+      return;
+    }
+    let html = '';
+    selectedArray.forEach(id => {
+      const node = nodeMap.get(id);
+      if (!node) return;
+      const score = getEffectiveScore(node);
+      html += \`
+        <div class="text-entry" data-id="\${id}">
+          <div class="entry-id">\${node.name || id}</div>
+          <div class="entry-desc">\${node.desc}</div>
+          <div class="entry-score">▲+\${score}</div>
+        </div>
+      \`;
+    });
+    scrollContainer.innerHTML = html;
+    if (targetId) {
+      const targetEl = scrollContainer.querySelector(\`.text-entry[data-id="\${targetId}"]\`);
+      if (targetEl) {
+        targetEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        targetEl.classList.add('highlight');
+        setTimeout(() => targetEl.classList.remove('highlight'), 800);
+      }
+    }
+  }
+
+  function updateCount() {
+    document.getElementById('selectedCount').textContent = selectedIds.size;
+    updateScorePanel();
+  }
+
+  function updateScorePanel() {
+    const roots = nodesData.filter(n => !n.parent).map(n => n.id);
+    let total = 0;
+    const rootScores = new Map();
+    roots.forEach(r => rootScores.set(r, 0));
+    selectedIds.forEach(id => {
+      const node = nodeMap.get(id);
+      if (!node) return;
+      const score = getEffectiveScore(node);
+      total += score;
+      let cur = id;
+      while (nodeMap.get(cur)?.parent) cur = nodeMap.get(cur).parent;
+      if (rootScores.has(cur)) rootScores.set(cur, rootScores.get(cur) + score);
+    });
+    document.getElementById('scoreTotal').textContent = total;
+    const listEl = document.getElementById('scoreRootList');
+    listEl.innerHTML = roots.map(r => \`
+      <div class="score-root-row">
+        <span class="root-id">\${r}</span>
+        <span class="root-score">▲+\${rootScores.get(r)}</span>
+      </div>
+    \`).join('');
+  }
+
+  let occupiedGrid = new Map();
+  let maxCols = new Map();
+  let maxRows = new Map();
+
+  function getRootNodeId(id) {
+    let cur = id;
+    while (nodeMap.get(cur)?.parent) cur = nodeMap.get(cur).parent;
+    return cur;
+  }
+
+  function rebuildGrid() {
+    occupiedGrid.clear();
+    maxCols.clear();
+    maxRows.clear();
+
+    const roots = nodesData.filter(n => !n.parent);
+
+    const sorted = [...nodesData].sort((a, b) => {
+      if (a.gridX !== null && b.gridX === null) return -1;
+      if (a.gridX === null && b.gridX !== null) return 1;
+      return a.id.localeCompare(b.id, undefined, { numeric: true, sensitivity: 'base' });
+    });
+
+    sorted.forEach(n => {
+      if (n.gridX !== null && n.gridY !== null) {
+        const key = \`\${n.gridX},\${n.gridY}\`;
+        if (!occupiedGrid.has(key)) {
+          occupiedGrid.set(key, n.id);
+          n._gx = n.gridX;
+          n._gy = n.gridY;
+          const rootId = getRootNodeId(n.id);
+          maxCols.set(rootId, Math.max(maxCols.get(rootId) || 0, n.gridX));
+          maxRows.set(rootId, Math.max(maxRows.get(rootId) || 0, n.gridY));
+        }
+      }
+    });
+
+    roots.forEach(root => {
+      if (!maxCols.has(root.id)) maxCols.set(root.id, 0);
+      if (!maxRows.has(root.id)) maxRows.set(root.id, 0);
+    });
+
+    for (let iter = 0; iter < 10; iter++) {
+      let changed = false;
+      nodesData.forEach(n => {
+        if (n._gx !== undefined) return;
+        
+        const rootId = getRootNodeId(n.id);
+        const parent = n.parent ? nodeMap.get(n.parent) : null;
+        
+        let targetX = 0, targetY = 0;
+        if (parent) {
+          targetX = (parent._gx || 0) + 1;
+          if (!n._gy) {
+            let candidateY = 1;
+            let found = false;
+            while (!found) {
+              const key = \`\${targetX},\${candidateY}\`;
+              if (!occupiedGrid.has(key)) {
+                found = true;
+                targetY = candidateY;
+              } else {
+                candidateY++;
+              }
+            }
+          }
+        } else {
+          targetX = 0;
+          targetY = (maxRows.get(rootId) || 0) + 1;
+          if (targetY === 1) targetY = 1; 
+          while (occupiedGrid.has(\`\${targetX},\${targetY}\`)) {
+            targetY++;
+          }
+        }
+        
+        while (occupiedGrid.has(\`\${targetX},\${targetY}\`)) {
+          targetX++;
+        }
+        
+        const key = \`\${targetX},\${targetY}\`;
+        occupiedGrid.set(key, n.id);
+        n._gx = targetX;
+        n._gy = targetY;
+        maxCols.set(rootId, Math.max(maxCols.get(rootId) || 0, targetX));
+        maxRows.set(rootId, Math.max(maxRows.get(rootId) || 0, targetY));
+        changed = true;
+      });
+      if (!changed) break;
+    }
+
+    nodesData.forEach(n => {
+      if (n._gx === undefined) {
+        n._gx = 0;
+        n._gy = 0;
+      }
+    });
+  }
+
+  function shiftRightFrom(startX, startY, minX) {
+    const nodesToShift = [];
+    nodesData.forEach(n => {
+      if (n._gx >= minX && n._gy >= startY) {
+        nodesToShift.push(n);
+      }
+    });
+    nodesToShift.sort((a, b) => b._gx - a._gx);
+    nodesToShift.forEach(n => {
+      const oldKey = \`\${n._gx},\${n._gy}\`;
+      let targetX = n._gx + 1;
+      while (occupiedGrid.has(\`\${targetX},\${n._gy}\`)) {
+        targetX++;
+      }
+      occupiedGrid.delete(oldKey);
+      n._gx = targetX;
+      occupiedGrid.set(\`\${targetX},\${n._gy}\`, n.id);
+    });
+  }
+
+  function updateNodePosition(id, newX, newY) {
+    const node = nodeMap.get(id);
+    if (!node) return;
+    const dataNode = nodesData.find(n => n.id === id);
+    const curX = (node._gx !== undefined) ? node._gx : (dataNode ? dataNode._gx : 0);
+    const curY = (node._gy !== undefined) ? node._gy : (dataNode ? dataNode._gy : 0);
+    const oldKey = \`\${curX},\${curY}\`;
+    const newKey = \`\${newX},\${newY}\`;
+    if (oldKey === newKey) return;
+
+    if (occupiedGrid.has(newKey) && occupiedGrid.get(newKey) !== id) {
+      shiftRightFrom(newX, newY, newX);
+    }
+    occupiedGrid.delete(oldKey);
+    occupiedGrid.set(newKey, id);
+    node._gx = newX;
+    node._gy = newY;
+    if (dataNode) {
+      dataNode._gx = newX;
+      dataNode._gy = newY;
+    }
+
+    const rootId = getRootNodeId(id);
+    maxCols.set(rootId, Math.max(maxCols.get(rootId) || 0, newX));
+    maxRows.set(rootId, Math.max(maxRows.get(rootId) || 0, newY));
+
+    buildTreeLayout();
+  }
+
+  function getSideCenter(pos, side) {
+    switch(side) {
+      case 'top': return { x: pos.centerX, y: pos.y };
+      case 'bottom': return { x: pos.centerX, y: pos.y + pos.h };
+      case 'left': return { x: pos.x, y: pos.centerY };
+      case 'right': return { x: pos.x + pos.w, y: pos.centerY };
+      default: return { x: pos.centerX, y: pos.centerY };
+    }
+  }
+
+  function autoStartSide(parentPos, childPos) {
+    const dx = childPos.centerX - parentPos.centerX;
+    const dy = childPos.centerY - parentPos.centerY;
+    if (Math.abs(dx) > Math.abs(dy)) {
+      return dx > 0 ? 'right' : 'left';
+    } else {
+      return dy > 0 ? 'bottom' : 'top';
+    }
+  }
+
+  function autoEndSide(startSide) {
+    return {top:'bottom', bottom:'top', left:'right', right:'left'}[startSide] || 'top';
+  }
+
+  function roundedPolyline(points, r) {
+    if (points.length < 2) return '';
+    let d = \`M \${points[0].x} \${points[0].y}\`;
+    for (let i = 1; i < points.length - 1; i++) {
+      const p0 = points[i-1], p1 = points[i], p2 = points[i+1];
+      const v1 = { x: p1.x - p0.x, y: p1.y - p0.y };
+      const v2 = { x: p2.x - p1.x, y: p2.y - p1.y };
+      const len1 = Math.hypot(v1.x, v1.y);
+      const len2 = Math.hypot(v2.x, v2.y);
+      const rr = Math.min(r, len1/2, len2/2);
+      if (rr <= 0) {
+        d += \` L \${p1.x} \${p1.y}\`;
+        continue;
+      }
+      const d1 = { x: v1.x / len1, y: v1.y / len1 };
+      const d2 = { x: v2.x / len2, y: v2.y / len2 };
+      const start = { x: p1.x - d1.x * rr, y: p1.y - d1.y * rr };
+      const end = { x: p1.x + d2.x * rr, y: p1.y + d2.y * rr };
+      d += \` L \${start.x} \${start.y} Q \${p1.x} \${p1.y} \${end.x} \${end.y}\`;
+    }
+    const last = points[points.length-1];
+    d += \` L \${last.x} \${last.y}\`;
+    return d;
+  }
+
+  function buildConnectionPath(parentId, parentPos, childPos, node) {
+    const cfg = (node.lineConfig && node.lineConfig[parentId]) || {};
+    let startSide = cfg.startSide;
+    let endSide = cfg.endSide;
+    if (!startSide) startSide = autoStartSide(parentPos, childPos);
+    if (!endSide) endSide = autoEndSide(startSide);
+
+    const s = getSideCenter(parentPos, startSide);
+    const e = getSideCenter(childPos, endSide);
+    const isStartHorizontal = startSide === 'left' || startSide === 'right';
+    const isEndHorizontal = endSide === 'left' || endSide === 'right';
+    const r = 10;
+
+    if (isStartHorizontal && isEndHorizontal && s.y === e.y) {
+      return \`M \${s.x} \${s.y} L \${e.x} \${e.y}\`;
+    }
+    if (!isStartHorizontal && !isEndHorizontal && s.x === e.x) {
+      return \`M \${s.x} \${s.y} L \${e.x} \${e.y}\`;
+    }
+
+    if (isStartHorizontal !== isEndHorizontal) {
+      let corner;
+      if (isStartHorizontal) {
+        corner = { x: e.x, y: s.y };
+      } else {
+        corner = { x: s.x, y: e.y };
+      }
+      return roundedPolyline([s, corner, e], r);
+    }
+
+    const offset = 30;
+    if (isStartHorizontal) {
+      const dist = Math.abs(s.x - e.x);
+      const actualOffset = Math.min(offset, dist / 2);
+      let midX;
+      if (e.x > s.x) midX = e.x - actualOffset;
+      else midX = e.x + actualOffset;
+      return roundedPolyline([s, { x: midX, y: s.y }, { x: midX, y: e.y }, e], r);
+    } else {
+      const dist = Math.abs(s.y - e.y);
+      const actualOffset = Math.min(offset, dist / 2);
+      let midY;
+      if (e.y > s.y) midY = e.y - actualOffset;
+      else midY = e.y + actualOffset;
+      return roundedPolyline([s, { x: s.x, y: midY }, { x: e.x, y: midY }, e], r);
+    }
+  }
+
+  // ===== 水平滑动条 =====
+  function updateHSliderBar() {
+    const cont = document.getElementById('treeContainer');
+    const track = document.getElementById('hSliderTrack');
+    const thumb = document.getElementById('hSliderThumb');
+    if (!cont || !track || !thumb) return;
+    const trackW = track.clientWidth;
+    if (!trackW) return;
+    const maxScroll = cont.scrollWidth - cont.clientWidth;
+    if (maxScroll <= 1) {
+      thumb.classList.add('disabled');
+      thumb.style.width = '100%';
+      thumb.style.left = '0px';
+      return;
+    }
+    thumb.classList.remove('disabled');
+    const ratio = cont.clientWidth / Math.max(cont.scrollWidth, 1);
+    const thumbW = Math.max(36, trackW * ratio);
+    const maxLeft = trackW - thumbW;
+    const left = (cont.scrollLeft / maxScroll) * maxLeft;
+    thumb.style.width = thumbW + 'px';
+    thumb.style.left = Math.max(0, Math.min(maxLeft, left)) + 'px';
+  }
+
+  (function initHSlider() {
+    const cont = document.getElementById('treeContainer');
+    const track = document.getElementById('hSliderTrack');
+    const thumb = document.getElementById('hSliderThumb');
+    const leftBtn = document.getElementById('hScrollLeftBtn');
+    const rightBtn = document.getElementById('hScrollRightBtn');
+    if (!cont || !track || !thumb) return;
+
+    let dragging = false, startX = 0, startLeft = 0;
+
+    thumb.addEventListener('mousedown', (e) => {
+      if (thumb.classList.contains('disabled')) return;
+      dragging = true;
+      startX = e.clientX;
+      startLeft = parseFloat(thumb.style.left) || 0;
+      thumb.classList.add('dragging');
+      e.preventDefault();
+      e.stopPropagation();
+    });
+
+    window.addEventListener('mousemove', (e) => {
+      if (!dragging) return;
+      const maxScroll = cont.scrollWidth - cont.clientWidth;
+      const trackW = track.clientWidth;
+      const thumbW = thumb.offsetWidth;
+      const maxLeft = Math.max(1, trackW - thumbW);
+      const newLeft = Math.max(0, Math.min(maxLeft, startLeft + (e.clientX - startX)));
+      thumb.style.left = newLeft + 'px';
+      cont.scrollLeft = (newLeft / maxLeft) * maxScroll;
+    });
+
+    window.addEventListener('mouseup', () => {
+      if (!dragging) return;
+      dragging = false;
+      thumb.classList.remove('dragging');
+    });
+
+    track.addEventListener('mousedown', (e) => {
+      if (e.target === thumb) return;
+      const rect = track.getBoundingClientRect();
+      const thumbW = thumb.offsetWidth;
+      const maxScroll = cont.scrollWidth - cont.clientWidth;
+      if (maxScroll <= 0) return;
+      const clickX = e.clientX - rect.left;
+      const maxLeft = Math.max(1, rect.width - thumbW);
+      const targetLeft = Math.max(0, Math.min(maxLeft, clickX - thumbW / 2));
+      cont.scrollLeft = (targetLeft / maxLeft) * maxScroll;
+      updateHSliderBar();
+    });
+
+    leftBtn.addEventListener('click', () => cont.scrollBy({ left: -cont.clientWidth * 0.6, behavior: 'smooth' }));
+    rightBtn.addEventListener('click', () => cont.scrollBy({ left: cont.clientWidth * 0.6, behavior: 'smooth' }));
+
+    cont.addEventListener('scroll', updateHSliderBar);
+    window.addEventListener('resize', updateHSliderBar);
+
+    // Shift + 滚轮 = 水平滚动
+    cont.addEventListener('wheel', (e) => {
+      if (e.shiftKey) {
+        e.preventDefault();
+        cont.scrollLeft += e.deltaY;
+      }
+    }, { passive: false });
+  })();
+
+  function buildTreeLayout() {
+    const treeContainer = document.getElementById('treeContainer');
+    const prevScrollLeft = treeContainer.scrollLeft;
+    const prevScrollTop = treeContainer.scrollTop;
+
+    treeContainer.innerHTML = '';
+
+    const container = document.createElement('div');
+    container.className = 'tree-canvas';
+    treeContainer.appendChild(container);
+
+    const roots = nodesData.filter(n => !n.parent).map(n => n.id);
+
+    const baseNodeSize = 100;
+    const gapX = 60;
+    const gapY = 60;
+    const startX = 80;
+    const startY = 80;
+
+    const posMap = new Map();
+
+    nodesData.forEach(n => {
+      const px = startX + (n._gx || 0) * (baseNodeSize + gapX);
+      const py = startY + (n._gy || 0) * (baseNodeSize + gapY);
+      posMap.set(n.id, { x: px, y: py, w: baseNodeSize, h: baseNodeSize, centerX: px + baseNodeSize / 2, centerY: py + baseNodeSize / 2 });
+      n._px = px;
+      n._py = py;
+      n._pw = baseNodeSize;
+      n._ph = baseNodeSize;
+
+      const mapNode = nodeMap.get(n.id);
+      if (mapNode) {
+        mapNode._px = px;
+        mapNode._py = py;
+        mapNode._pw = baseNodeSize;
+        mapNode._ph = baseNodeSize;
+        mapNode._gx = n._gx;
+        mapNode._gy = n._gy;
+      }
+    });
+
+    let maxX = 0, maxY = 0;
+    posMap.forEach(pos => {
+      maxX = Math.max(maxX, pos.x + pos.w + 100);
+      maxY = Math.max(maxY, pos.y + pos.h + 100);
+    });
+    const cw = Math.max(maxX, 1200);
+    const ch = Math.max(maxY, 1600);
+    container.style.width = \`\${cw}px\`;
+    container.style.height = \`\${ch}px\`;
+
+    // 计算所有节点的包围盒以缩小渐变跨度
+    let minX = Infinity, minY = Infinity, maxRX = -Infinity, maxBY = -Infinity;
+    nodesData.forEach(n => {
+      const px = n._px;
+      const py = n._py;
+      minX = Math.min(minX, px);
+      minY = Math.min(minY, py);
+      maxRX = Math.max(maxRX, px + n._pw);
+      maxBY = Math.max(maxBY, py + n._ph);
+    });
+    if (nodesData.length === 0) { minX = 0; maxRX = 1200; minY = 0; maxBY = 1600; }
+    const gx = Math.max(maxRX - minX, 1);
+    const gy = Math.max(maxBY - minY, 1);
+    const gradCx = minX + gx / 2;
+    const gradCy = minY + gy / 2;
+    const gradR = Math.max(gx, gy);
+    const rad = gradientAngle * Math.PI / 180;
+    const x1 = gradCx - Math.cos(rad) * gradR / 2;
+    const y1 = gradCy - Math.sin(rad) * gradR / 2;
+    const x2 = gradCx + Math.cos(rad) * gradR / 2;
+    const y2 = gradCy + Math.sin(rad) * gradR / 2;
+
+    roots.forEach(rootId => {
+      const rootPos = posMap.get(rootId);
+      if (!rootPos) return;
+      let rootMinX = rootPos.x, rootMinY = rootPos.y, rootMaxRX = rootPos.x + rootPos.w, rootMaxBY = rootPos.y + rootPos.h;
+      const all = getNodesUnderRoot(rootId);
+      all.forEach(id => {
+        const p = posMap.get(id);
+        if (p) {
+          rootMinX = Math.min(rootMinX, p.x);
+          rootMinY = Math.min(rootMinY, p.y);
+          rootMaxRX = Math.max(rootMaxRX, p.x + p.w);
+          rootMaxBY = Math.max(rootMaxBY, p.y + p.h);
+        }
+      });
+      const pad = 30;
+      const bgDiv = document.createElement('div');
+      bgDiv.className = 'root-set-bg';
+      bgDiv.dataset.root = rootId;
+      bgDiv.style.left = (rootMinX - pad) + 'px';
+      bgDiv.style.top = (rootMinY - pad - 20) + 'px';
+      bgDiv.style.width = (rootMaxRX - rootMinX + pad * 2) + 'px';
+      bgDiv.style.height = (rootMaxBY - rootMinY + pad * 2 + 20 + 24) + 'px';
+      if (setBgImage) {
+        bgDiv.style.backgroundImage = \`url('\${setBgImage}')\`;
+        bgDiv.style.opacity = '${setBgOpacity / 100}';
+      } else {
+        bgDiv.style.background = 'linear-gradient(135deg, #2a1e1e55, #14181f88)';
+        bgDiv.style.opacity = '${setBgOpacity / 100}';
+      }
+      container.appendChild(bgDiv);
+
+      const titleEl = document.createElement('div');
+      titleEl.style.position = 'absolute';
+      titleEl.style.left = (rootMinX - pad + 10) + 'px';
+      titleEl.style.top = (rootMinY - pad - 18) + 'px';
+      titleEl.style.color = '#ffaa33';
+      titleEl.style.fontWeight = '800';
+      titleEl.style.fontSize = '0.9rem';
+      titleEl.style.textShadow = '0 2px 6px #000, 0 0 12px #ffaa3344';
+      titleEl.style.zIndex = '4';
+      titleEl.style.background = 'rgba(20,24,31,0.75)';
+      titleEl.style.padding = '2px 14px';
+      titleEl.style.borderRadius = '20px';
+      titleEl.style.border = '1px solid #ffaa3344';
+      titleEl.style.backdropFilter = 'blur(2px)';
+      const rootNode = nodeMap.get(rootId);
+      const setScore = (function() {
+        let s = 0;
+        all.forEach(id => { s += getEffectiveScore(nodeMap.get(id)); });
+        return s;
+      })();
+      const setTitle = (rootNode.setName || rootNode.name || rootId);
+      titleEl.textContent = \`指标集:\${setTitle} (▲+\${setScore})\`;
+
+    });
+
+    const svgNS = 'http://www.w3.org/2000/svg';
+    const svg = document.createElementNS(svgNS, 'svg');
+    svg.setAttribute('class', 'line-layer');
+    svg.setAttribute('width', '100%');
+    svg.setAttribute('height', '100%');
+    svg.style.position = 'absolute';
+    svg.style.top = '0';
+    svg.style.left = '0';
+    svg.style.pointerEvents = 'none';
+    svg.style.zIndex = '1';
+
+    if (useFill) {
+      const defs = document.createElementNS(svgNS, 'defs');
+      if (fillType === 'gradient') {
+        const lg = document.createElementNS(svgNS, 'linearGradient');
+        lg.setAttribute('id', 'activeLineFill');
+        lg.setAttribute('gradientUnits', 'userSpaceOnUse');
+        lg.setAttribute('x1', x1);
+        lg.setAttribute('y1', y1);
+        lg.setAttribute('x2', x2);
+        lg.setAttribute('y2', y2);
+        const stop1 = document.createElementNS(svgNS, 'stop');
+        stop1.setAttribute('offset', '0%');
+        stop1.setAttribute('stop-color', gradientColor1);
+        const stop2 = document.createElementNS(svgNS, 'stop');
+        stop2.setAttribute('offset', '100%');
+        stop2.setAttribute('stop-color', gradientColor2);
+        lg.appendChild(stop1);
+        lg.appendChild(stop2);
+        defs.appendChild(lg);
+      } else if (fillTextureImage) {
+        const pattern = document.createElementNS(svgNS, 'pattern');
+        pattern.setAttribute('id', 'activeLineFill');
+        pattern.setAttribute('patternUnits', 'userSpaceOnUse');
+        pattern.setAttribute('width', '64');
+        pattern.setAttribute('height', '64');
+        const img = document.createElementNS(svgNS, 'image');
+        img.setAttribute('href', fillTextureImage);
+        img.setAttribute('width', '64');
+        img.setAttribute('height', '64');
+        pattern.appendChild(img);
+        defs.appendChild(pattern);
+      }
+      svg.appendChild(defs);
+    }
+
+    const nodeBgGroup = document.createElementNS(svgNS, 'g');
+    nodeBgGroup.setAttribute('id', 'node-bg');
+    svg.appendChild(nodeBgGroup);
+
+    const nodeBordersGroup = document.createElementNS(svgNS, 'g');
+    nodeBordersGroup.setAttribute('id', 'node-borders');
+    svg.appendChild(nodeBordersGroup);
+
+    container.appendChild(svg);
+
+    nodesData.forEach(node => {
+      const parentIds = node.parents || [];
+      parentIds.forEach(parentId => {
+        const parentPos = posMap.get(parentId);
+        const childPos = posMap.get(node.id);
+        if (!parentPos || !childPos) return;
+        const pathD = buildConnectionPath(parentId, parentPos, childPos, node);
+        const path = document.createElementNS(svgNS, 'path');
+        path.setAttribute('d', pathD);
+        path.setAttribute('class', 'line-path');
+        path.dataset.parent = parentId;
+        path.dataset.child = node.id;
+        svg.appendChild(path);
+      });
+    });
+
+    roots.forEach(rootId => {
+      const rootPos = posMap.get(rootId);
+      if (!rootPos) return;
+      const dot = document.createElement('div');
+      dot.className = 'root-dot';
+      dot.dataset.root = rootId;
+      dot.style.left = (rootPos.x - 16) + 'px';
+      dot.style.top = rootPos.centerY + 'px';
+      container.appendChild(dot);
+    });
+
+    const nodeFrag = document.createDocumentFragment();
+    nodesData.forEach(node => {
+      const pos = posMap.get(node.id);
+      if (!pos) return;
+
+      const score = getEffectiveScore(node);
+      const depth = getDepth(node.id);
+      const div = document.createElement('div');
+      div.className = 'node';
+      div.dataset.id = node.id;
+      div.dataset.depth = depth;
+      div.tabIndex = 0;
+      div.style.left = \`\${pos.x}px\`;
+      div.style.top = \`\${pos.y}px\`;
+
+      const inner = document.createElement('div');
+      inner.className = 'node-inner';
+      if (node.icon) {
+        inner.style.backgroundImage = \`url(\${node.icon})\`;
+      }
+
+      if (!node.icon) {
+        inner.innerHTML = \`<div class="node-icon">\${getEmojiForDepth(depth)}</div>\`;
+      }
+      div.appendChild(inner);
+
+
+      if (score) {
+        const badge = document.createElement('span');
+        badge.className = 'score-badge';
+        badge.textContent = \`▲+\${score}\`;
+        div.appendChild(badge);
+      }
+
+
+      div.addEventListener('mouseenter', (e) => showTooltip(e, node.id));
+      div.addEventListener('mouseleave', hideTooltip);
+      
+      div.addEventListener('click', (e) => {
+        e.stopPropagation();
+        toggleNode(node.id);
+      });
+      
+      div.addEventListener('keydown', (e) => {
+        if (!['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) return;
+        e.preventDefault();
+        const n = nodeMap.get(node.id);
+        if (!n) return;
+        let nx = (n._gx !== undefined) ? n._gx : 0;
+        let ny = (n._gy !== undefined) ? n._gy : 0;
+        if (e.key === 'ArrowUp') ny--;
+        else if (e.key === 'ArrowDown') ny++;
+        else if (e.key === 'ArrowLeft') nx--;
+        else if (e.key === 'ArrowRight') nx++;
+        
+        if (nx < 0) nx = 0;
+        if (ny < 0) ny = 0;
+        
+        updateNodePosition(node.id, nx, ny);
+        setTimeout(() => {
+          const el = document.querySelector(\`.node[data-id="\${node.id}"]\`);
+          if (el) el.focus();
+        }, 50);
+      });
+
+      nodeFrag.appendChild(div);
+    });
+    container.appendChild(nodeFrag);
+
+    const rootPositions = [];
+    roots.forEach(rootId => {
+      const pos = posMap.get(rootId);
+      if (pos) rootPositions.push({ rootId, pos });
+    });
+
+    rootPositions.forEach(({ rootId, pos }) => {
+      const btnContainer = document.createElement('div');
+      btnContainer.className = 'root-actions';
+      btnContainer.style.left = \`\${pos.centerX}px\`;
+      btnContainer.style.top = \`\${pos.y + pos.h + 32}px\`;
+
+      const selectBtn = document.createElement('button');
+      selectBtn.className = 'select-root-btn';
+      selectBtn.textContent = '指标集全选';
+      selectBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        selectRoot(rootId);
+        updateAllNodeAppearance();
+      });
+
+      const deselectBtn = document.createElement('button');
+      deselectBtn.className = 'deselect-root-btn';
+      deselectBtn.textContent = '指标集取消';
+      deselectBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        deselectRoot(rootId);
+        updateAllNodeAppearance();
+      });
+
+      btnContainer.appendChild(selectBtn);
+      btnContainer.appendChild(deselectBtn);
+      container.appendChild(btnContainer);
+    });
+
+    refreshNodeStates();
+    renderTextPanelWithScroll(null);
+    updateCount();
+    updateLineHighlights();
+    updateAllNodeAppearance();
+
+    // 恢复滚动位置
+    treeContainer.scrollLeft = prevScrollLeft;
+    treeContainer.scrollTop = prevScrollTop;
+    requestAnimationFrame(updateHSliderBar);
+  }
+
+  function getEmojiForDepth(depth) {
+    const emojis = ['📋', '🔹', '🔸', '▪️'];
+    return emojis[Math.min(depth, 3)];
+  }
+
+  const invertedIconCache = new Map();
+
+    function updateAllNodeAppearance() {
+    document.querySelectorAll('.node').forEach(div => {
+      const id = div.dataset.id;
+      const node = nodeMap.get(id);
+      const inner = div.querySelector('.node-inner');
+      if (!inner) return;
+
+      if (hasConflict(id)) {
+        inner.style.setProperty('background-image', 'none', 'important');
+        div.style.border = '';
+        div.style.borderImage = '';
+        div.style.boxShadow = '';
+        return;
+      }
+
+      const depth = div.dataset.depth;
+      const isSelected = selectedIds.has(id);
+
+      if (!isSelected) {
+        inner.style.backgroundColor = useFill ? 'transparent' : '';
+        if (!useFill) {
+          if (depth === "0") inner.style.backgroundColor = '#4a1e1e';
+          else if (depth === "1") inner.style.backgroundColor = '#3e2020';
+          else if (depth === "2") inner.style.backgroundColor = '#2f1818';
+          else if (depth === "3") inner.style.backgroundColor = '#251212';
+        }
+
+        if (node && node.icon) {
+          inner.style.backgroundImage = \`url(\${node.icon})\`;
+        } else {
+          inner.style.backgroundImage = '';
+        }
+        inner.style.backgroundSize = 'cover';
+        inner.style.backgroundPosition = 'center';
+        inner.style.backgroundRepeat = 'no-repeat';
+
+        div.style.border = '';
+        div.style.boxShadow = '0 4px 0 #0a0707';
+      } else {
+        inner.style.backgroundColor = useFill ? 'transparent' : '#aa2222';
+
+        if (node && node.icon) {
+          let iconUrl = node.icon;
+          if (node.isBinarized) {
+            if (invertedIconCache.has(id)) {
+              iconUrl = invertedIconCache.get(id);
+            } else {
+              const img = new Image();
+              img.crossOrigin = 'anonymous';
+              img.onload = () => {
+                if (hasConflict(id)) return;
+                const canvas = document.createElement('canvas');
+                canvas.width = img.width;
+                canvas.height = img.height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0);
+                const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                const data = imgData.data;
+                for (let i = 0; i < data.length; i += 4) {
+                  const r = data[i], g = data[i+1], b = data[i+2], a = data[i+3];
+                  if (a === 0) continue;
+                  if (r > 128 && g > 128 && b > 128) {
+                    data[i+3] = 0;
+                  } else {
+                    data[i] = 255; data[i+1] = 255; data[i+2] = 255; data[i+3] = 255;
+                  }
+                }
+                ctx.putImageData(imgData, 0, 0);
+                invertedIconCache.set(id, canvas.toDataURL());
+                updateAllNodeAppearance();
+              };
+              img.src = node.icon;
+            }
+          }
+          inner.style.backgroundImage = \`url(\${iconUrl})\`;
+        } else {
+          inner.style.backgroundImage = '';
+        }
+        inner.style.backgroundSize = 'cover';
+        inner.style.backgroundPosition = 'center';
+        inner.style.backgroundRepeat = 'no-repeat';
+
+        div.style.border = '';
+        div.style.boxShadow = '0 4px 0 #0a0707';
+      }
+    });
+  }
+
+
+  function updateLineHighlights() {
+    const svg = document.querySelector('.line-layer');
+    if (!svg) return;
+    
+    const paths = svg.querySelectorAll('.line-path');
+    paths.forEach(path => {
+      const childId = path.dataset.child;
+      const isSelected = selectedIds.has(childId);
+      path.classList.toggle('active', isSelected);
+    });
+    
+    let bgGroup = svg.querySelector('#node-bg');
+    if (!bgGroup) {
+      bgGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+      bgGroup.id = 'node-bg';
+      svg.appendChild(bgGroup);
+    }
+    bgGroup.innerHTML = '';
+    
+    if (useFill) {
+      document.querySelectorAll('.node.selected').forEach(div => {
+        const id = div.dataset.id;
+        const n = nodeMap.get(id);
+        if (!n) return;
+        const bgRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        bgRect.setAttribute('x', n._px);
+        bgRect.setAttribute('y', n._py);
+        bgRect.setAttribute('width', n._pw);
+        bgRect.setAttribute('height', n._ph);
+        bgRect.setAttribute('fill', 'url(#activeLineFill)');
+        bgGroup.appendChild(bgRect);
+      });
+      
+      document.querySelectorAll('.contract-conflict').forEach(tag => {
+        const div = tag.parentElement;
+        if (!div) return;
+        const id = div.dataset.id;
+        const n = nodeMap.get(id);
+        if (!n) return;
+        const bgRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        bgRect.setAttribute('x', n._px);
+        bgRect.setAttribute('y', n._py);
+        bgRect.setAttribute('width', n._pw);
+        bgRect.setAttribute('height', n._ph);
+        bgRect.setAttribute('fill', 'url(#activeLineFill)');
+        bgGroup.appendChild(bgRect);
+      });
+    }
+    
+    document.querySelectorAll('.root-dot').forEach(dot => {
+      const rootId = dot.dataset.root;
+      dot.classList.toggle('active', selectedIds.has(rootId));
+    });
+  }
+
+  let tooltipEl = null;
+
+  function showTooltip(e, id) {
+    if (tooltipEl) tooltipEl.remove();
+    const node = nodeMap.get(id);
+    if (!node) return;
+    const score = getEffectiveScore(node);
+    tooltipEl = document.createElement('div');
+    tooltipEl.className = 'tooltip';
+    tooltipEl.innerHTML = \`<strong>\${node.name || id}</strong> <span style="color:#8fa5bb;">\${id}</span><br>\${node.desc}<br><span style="color:#ffaa33;">▲+\${score}</span>\`;
+
+    document.body.appendChild(tooltipEl);
+    const rect = e.target.getBoundingClientRect();
+    tooltipEl.style.left = \`\${rect.right + 12}px\`;
+    tooltipEl.style.top = \`\${rect.top - 10}px\`;
+    const tooltipRect = tooltipEl.getBoundingClientRect();
+    if (tooltipRect.right > window.innerWidth) {
+      tooltipEl.style.left = \`\${rect.left - tooltipRect.width - 12}px\`;
+    }
+    if (tooltipRect.bottom > window.innerHeight) {
+      tooltipEl.style.top = \`\${rect.bottom - tooltipRect.height + 10}px\`;
+    }
+  }
+
+  function hideTooltip() {
+    if (tooltipEl) {
+      tooltipEl.remove();
+      tooltipEl = null;
+    }
+  }
+
+  function exportCode() {
+    const arr = Array.from(selectedIds).sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }));
+    const code = arr.join(',');
+    navigator.clipboard.writeText(code).then(() => {
+      alert(\`已复制词条代码:\\n\${code || '(空)'}\`);
+    }).catch(() => {
+      const input = document.getElementById('codeInput');
+      input.value = code;
+      input.select();
+      document.execCommand('copy');
+      alert('已复制到剪贴板');
+    });
+  }
+
+  function importCode() {
+    const input = document.getElementById('codeInput');
+    const code = input.value.trim();
+    if (!code) {
+      alert('请输入词条代码，例如: 1.1,2.1.2,3.3');
+      return;
+    }
+    const ids = code.split(',').map(s => s.trim()).filter(s => s && nodeMap.has(s));
+    selectedIds.clear();
+    ids.sort((a, b) => {
+      const da = getDepth(a), db = getDepth(b);
+      if (da !== db) return da - db;
+      return a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' });
+    });
+    for (let id of ids) {
+      if (selectedIds.has(id)) continue;
+      selectNode(id);
+    }
+    refreshNodeStates();
+    updateCount();
+    renderTextPanelWithScroll(null);
+    updateLineHighlights();
+    updateAllNodeAppearance();
+    input.value = '';
+  }
+
+  function applyDifficultyChange() {
+    const container = document.getElementById('treeContainer');
+    container.querySelectorAll('.node').forEach(div => {
+      const id = div.dataset.id;
+      const node = nodeMap.get(id);
+      if (!node) return;
+      const scoreEl = div.querySelector('.score-badge');
+      const score = getEffectiveScore(node);
+      if (scoreEl) {
+        if (score) {
+          scoreEl.textContent = \`▲+\${score}\`;
+        } else {
+          scoreEl.remove();
+        }
+      } else if (score) {
+        const span = document.createElement('span');
+        span.className = 'score-badge';
+        span.textContent = \`▲+\${score}\`;
+        div.appendChild(span);
+      }
+    });
+    refreshNodeStates();
+    renderTextPanelWithScroll(null);
+    updateCount();
+    updateLineHighlights();
+    updateAllNodeAppearance();
+  }
+
+  let exportBgData = {}; 
+  let scoreBgSetting = { type: 'theme' };
+  let scoreBgOpacity = 100;
+  let playerName = '天离beta';
+  let avatarData = null;
+
+  let bgCropImage = null;
+  let bgCropCanvas = null;
+  let bgCropCtx = null;
+  let bgCropScale = 1;
+  let bgCropOffset = { x: 0, y: 0 };
+  let bgCropAspect = 4;
+  let bgCropCallback = null;
+
+  function clampOffset(offset, imgSize, canvasSize) {
+    if (imgSize <= canvasSize) {
+      return Math.max(0, Math.min(canvasSize - imgSize, offset));
+    } else {
+      return Math.max(canvasSize - imgSize, Math.min(0, offset));
+    }
+  }
+
+  function openBgCropModal(imageSrc, aspectRatio, callback) {
+    const modal = document.getElementById('bgCropModal');
+    const wrap = document.getElementById('bgCropWrap');
+    bgCropCanvas = document.getElementById('bgCropCanvas');
+    bgCropCtx = bgCropCanvas.getContext('2d');
+    bgCropAspect = aspectRatio;
+
+    const maxW = Math.min(600, window.innerWidth - 80);
+    const displayW = maxW;
+    const displayH = Math.round(displayW / aspectRatio);
+    bgCropCanvas.width = displayW;
+    bgCropCanvas.height = displayH;
+    bgCropCanvas.style.width = displayW + 'px';
+    bgCropCanvas.style.height = displayH + 'px';
+    wrap.style.width = displayW + 'px';
+    wrap.style.height = displayH + 'px';
+
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => {
+      bgCropImage = img;
+      bgCropScale = Math.max(displayW / img.width, displayH / img.height);
+      bgCropOffset = {
+        x: (displayW - img.width * bgCropScale) / 2,
+        y: (displayH - img.height * bgCropScale) / 2
+      };
+      bgCropOffset.x = clampOffset(bgCropOffset.x, img.width * bgCropScale, displayW);
+      bgCropOffset.y = clampOffset(bgCropOffset.y, img.height * bgCropScale, displayH);
+      document.getElementById('bgCropZoom').value = bgCropScale;
+      document.getElementById('bgCropZoomValue').textContent = Math.round(bgCropScale * 100) + '%';
+      drawBgCrop();
+      modal.classList.add('active');
+    };
+    img.src = imageSrc;
+    bgCropCallback = callback;
+  }
+
+  function drawBgCrop() {
+    if (!bgCropImage) return;
+    bgCropCtx.clearRect(0, 0, bgCropCanvas.width, bgCropCanvas.height);
+    bgCropCtx.drawImage(bgCropImage, bgCropOffset.x, bgCropOffset.y, bgCropImage.width * bgCropScale, bgCropImage.height * bgCropScale);
+  }
+
+  function closeBgCropModal() {
+    document.getElementById('bgCropModal').classList.remove('active');
+    bgCropImage = null;
+    bgCropCallback = null;
+  }
+
+  (function() {
+    const wrap = document.getElementById('bgCropWrap');
+    let dragging = false;
+    let lastX = 0, lastY = 0;
+    wrap.addEventListener('mousedown', (e) => {
+      dragging = true;
+      lastX = e.clientX;
+      lastY = e.clientY;
+      e.preventDefault();
+    });
+    window.addEventListener('mousemove', (e) => {
+      if (!dragging || !bgCropImage) return;
+      const dx = e.clientX - lastX;
+      const dy = e.clientY - lastY;
+      lastX = e.clientX;
+      lastY = e.clientY;
+      bgCropOffset.x += dx;
+      bgCropOffset.y += dy;
+      bgCropOffset.x = clampOffset(bgCropOffset.x, bgCropImage.width * bgCropScale, bgCropCanvas.width);
+      bgCropOffset.y = clampOffset(bgCropOffset.y, bgCropImage.height * bgCropScale, bgCropCanvas.height);
+      drawBgCrop();
+    });
+    window.addEventListener('mouseup', () => { dragging = false; });
+  })();
+
+  document.getElementById('bgCropZoom').addEventListener('input', (e) => {
+    if (!bgCropImage) return;
+    const newScale = parseFloat(e.target.value);
+    const canvasW = bgCropCanvas.width;
+    const canvasH = bgCropCanvas.height;
+    const cx = canvasW / 2;
+    const cy = canvasH / 2;
+    const imgX = (cx - bgCropOffset.x) / bgCropScale;
+    const imgY = (cy - bgCropOffset.y) / bgCropScale;
+    bgCropScale = newScale;
+    bgCropOffset.x = cx - imgX * bgCropScale;
+    bgCropOffset.y = cy - imgY * bgCropScale;
+    bgCropOffset.x = clampOffset(bgCropOffset.x, bgCropImage.width * bgCropScale, canvasW);
+    bgCropOffset.y = clampOffset(bgCropOffset.y, bgCropImage.height * bgCropScale, canvasH);
+    document.getElementById('bgCropZoomValue').textContent = Math.round(bgCropScale * 100) + '%';
+    drawBgCrop();
+  });
+
+  document.getElementById('bgCropCancelBtn').addEventListener('click', closeBgCropModal);
+  document.getElementById('bgCropConfirmBtn').addEventListener('click', () => {
+    if (!bgCropImage || !bgCropCallback) return;
+    const out = document.createElement('canvas');
+    out.width = bgCropCanvas.width;
+    out.height = bgCropCanvas.height;
+    const ctx = out.getContext('2d');
+    ctx.drawImage(bgCropImage, bgCropOffset.x, bgCropOffset.y, bgCropImage.width * bgCropScale, bgCropImage.height * bgCropScale);
+    const dataUrl = out.toDataURL('image/png');
+    const cb = bgCropCallback;
+    closeBgCropModal();
+    cb(dataUrl);
+  });
+
+  document.getElementById('exportImageBtn').addEventListener('click', () => {
+    const modal = document.getElementById('exportModal');
+    const bgList = document.getElementById('exportBgList');
+    bgList.innerHTML = '';
+    const roots = nodesData.filter(n => !n.parent);
+    roots.forEach(root => {
+      const row = document.createElement('div');
+      row.className = 'export-bg-row';
+      const bgObj = exportBgData[root.id] || { image: '', opacity: 100 };
+      row.innerHTML = \`
+        <span class="bg-name" style="width:100%;">指标集: \${root.setName || root.name} (\${root.id})</span>
+        <button data-root="\${root.id}" class="upload-root-bg">上传背景</button>
+        <img data-preview="\${root.id}" src="\${bgObj.image}" style="display:\${bgObj.image ? 'block' : 'none'};" />
+        <div style="display:flex; align-items:center; gap:8px; flex:1; min-width:150px;">
+          <span style="font-size:0.75rem; color:#8fa5bb; white-space:nowrap;">透明度</span>
+          <input type="range" data-root-opacity="\${root.id}" min="0" max="100" value="\${bgObj.opacity}" class="range-slider" style="width:100px;" />
+          <span data-root-opacity-val="\${root.id}" style="font-size:0.75rem; width:35px; text-align:right;">\${bgObj.opacity}%</span>
+        </div>
+      \`;
+      bgList.appendChild(row);
+      const btn = row.querySelector('.upload-root-bg');
+      btn.addEventListener('click', () => {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'image/*';
+        input.onchange = (e) => {
+          const file = e.target.files[0];
+          if (!file) return;
+          const reader = new FileReader();
+          reader.onload = (ev) => {
+            const bgEl = document.querySelector(\`.root-set-bg[data-root="\${root.id}"]\`);
+            let aspect = 4;
+            if (bgEl) {
+              const w = bgEl.offsetWidth;
+              const h = bgEl.offsetHeight;
+              if (h > 0) aspect = w / h;
+            }
+            openBgCropModal(ev.target.result, aspect, (dataUrl) => {
+              if (!exportBgData[root.id]) exportBgData[root.id] = { opacity: 100 };
+              exportBgData[root.id].image = dataUrl;
+              const preview = row.querySelector('img');
+              preview.src = dataUrl;
+              preview.style.display = 'block';
+            });
+          };
+          reader.readAsDataURL(file);
+        };
+        input.click();
+      });
+      const slider = row.querySelector(\`input[data-root-opacity="\${root.id}"]\`);
+      const valSpan = row.querySelector(\`span[data-root-opacity-val="\${root.id}"]\`);
+      slider.addEventListener('input', () => {
+        if (!exportBgData[root.id]) exportBgData[root.id] = { image: '' };
+        exportBgData[root.id].opacity = parseInt(slider.value);
+        valSpan.textContent = slider.value + '%';
+      });
+    });
+
+    const scoreBgType = document.getElementById('scoreBgType');
+    const uploadScoreBgBtn = document.getElementById('uploadScoreBgBtn');
+    const scoreBgFileInput = document.getElementById('scoreBgFileInput');
+    scoreBgType.addEventListener('change', () => {
+      scoreBgSetting.type = scoreBgType.value;
+      uploadScoreBgBtn.style.display = scoreBgSetting.type === 'image' ? 'inline-block' : 'none';
+    });
+    uploadScoreBgBtn.onclick = () => scoreBgFileInput.click();
+    scoreBgFileInput.onchange = (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        openBgCropModal(ev.target.result, 6, (dataUrl) => {
+          scoreBgSetting = { type: 'image', image: dataUrl };
+        });
+      };
+      reader.readAsDataURL(file);
+      scoreBgFileInput.value = '';
+    };
+    document.getElementById('scoreBgOpacity').value = scoreBgOpacity;
+    document.getElementById('scoreBgOpacityValue').textContent = scoreBgOpacity + '%';
+
+    const playerNameInput = document.getElementById('playerNameInput');
+    playerNameInput.value = playerName;
+    const uploadAvatarBtn = document.getElementById('uploadAvatarBtn');
+    const avatarFileInput = document.getElementById('avatarFileInput');
+    const avatarPreview = document.getElementById('avatarPreview');
+    uploadAvatarBtn.onclick = () => avatarFileInput.click();
+    avatarFileInput.onchange = (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        openBgCropModal(ev.target.result, 1, (dataUrl) => {
+          avatarData = dataUrl;
+          avatarPreview.src = dataUrl;
+          avatarPreview.style.display = 'block';
+        });
+      };
+      reader.readAsDataURL(file);
+      avatarFileInput.value = '';
+    };
+    if (avatarData) {
+      avatarPreview.src = avatarData;
+      avatarPreview.style.display = 'block';
+    } else {
+      avatarPreview.style.display = 'none';
+    }
+
+    modal.classList.add('active');
+  });
+
+  document.getElementById('scoreBgOpacity').addEventListener('input', (e) => {
+    scoreBgOpacity = parseInt(e.target.value);
+    document.getElementById('scoreBgOpacityValue').textContent = scoreBgOpacity + '%';
+  });
+
+  document.getElementById('exportCancelBtn').addEventListener('click', () => {
+    document.getElementById('exportModal').classList.remove('active');
+  });
+
+  document.getElementById('exportConfirmBtn').addEventListener('click', async () => {
+    const modal = document.getElementById('exportModal');
+    modal.classList.remove('active');
+
+    playerName = document.getElementById('playerNameInput').value.trim() || '选手';
+    scoreBgSetting.type = document.getElementById('scoreBgType').value;
+    scoreBgOpacity = parseInt(document.getElementById('scoreBgOpacity').value);
+
+    const leftPanel = document.getElementById('leftPanel');
+    const toolbar = document.getElementById('toolbar');
+    const treeContainer = document.getElementById('treeContainer');
+    const scorePanel = document.getElementById('scorePanel');
+    const hSliderBar = document.getElementById('hSliderBar');
+
+    const treeCanvasEl = treeContainer.querySelector('.tree-canvas');
+    const contentW = treeCanvasEl ? treeCanvasEl.offsetWidth : treeContainer.clientWidth;
+    const contentH = treeCanvasEl ? treeCanvasEl.offsetHeight : treeContainer.clientHeight;
+
+    const origPadding = leftPanel.style.padding;
+    const origHeight = leftPanel.style.height;
+    const origWidth = leftPanel.style.width;
+    const origOverflow = leftPanel.style.overflow;
+    const origDisplay = leftPanel.style.display;
+    const origToolbarDisplay = toolbar.style.display;
+    const origScorePanelDisplay = scorePanel.style.display;
+    const origTreeOverflow = treeContainer.style.overflow;
+    const origTreeWidth = treeContainer.style.width;
+    const origTreeHeight = treeContainer.style.height;
+
+    toolbar.style.display = 'none';
+    scorePanel.style.display = 'none';
+    hSliderBar.style.display = 'none';
+
+    leftPanel.style.display = 'block';
+    leftPanel.style.width = contentW + 'px';
+    leftPanel.style.height = 'auto';
+    leftPanel.style.overflow = 'visible';
+    leftPanel.style.padding = '0';
+
+    treeContainer.style.overflow = 'visible';
+    treeContainer.style.width = contentW + 'px';
+    treeContainer.style.height = contentH + 'px';
+    treeContainer.scrollLeft = 0;
+    treeContainer.scrollTop = 0;
+
+    Object.keys(exportBgData).forEach(rootId => {
+      const bgEl = document.querySelector(\`.root-set-bg[data-root="\${rootId}"]\`);
+      if (bgEl && exportBgData[rootId].image) {
+        bgEl.style.backgroundImage = \`url(\${exportBgData[rootId].image})\`;
+        bgEl.style.opacity = exportBgData[rootId].opacity / 100;
+      }
+    });
+
+    let footerBgStyle = '';
+    if (scoreBgSetting.type === 'theme') {
+      footerBgStyle = \`background: \${globalThemeColor};\`;
+    } else if (scoreBgSetting.type === 'gradient') {
+      footerBgStyle = \`background: linear-gradient(\${gradientAngle}deg, \${gradientColor1}, \${gradientColor2});\`;
+    } else if (scoreBgSetting.type === 'texture' && fillTextureImage) {
+      footerBgStyle = \`background: url(\${fillTextureImage}) center/cover;\`;
+    } else if (scoreBgSetting.type === 'image' && scoreBgSetting.image) {
+      footerBgStyle = \`background: url(\${scoreBgSetting.image}) center/cover;\`;
+    } else {
+      footerBgStyle = \`background: #1a232f;\`;
+    }
+
+    let total = 0;
+    selectedIds.forEach(id => {
+      const node = nodeMap.get(id);
+      if (node) total += getEffectiveScore(node);
+    });
+
+    const header = document.createElement('div');
+    header.className = 'one-page-header';
+    header.innerHTML = \`
+      <div class="player-info">
+        <div class="label">当前选手</div>
+        <div class="name">\${playerName}</div>
+      </div>
+      \${avatarData ? \`<img class="avatar" src="\${avatarData}" />\` : '<div class="avatar"></div>'}
+    \`;
+    leftPanel.insertBefore(header, leftPanel.firstChild);
+
+    const footer = document.createElement('div');
+    footer.className = 'one-page-footer';
+    footer.innerHTML = \`
+      <div style="position:absolute; top:0; left:0; right:0; bottom:0; \${footerBgStyle} opacity: \${scoreBgOpacity / 100}; pointer-events: none;"></div>
+      <div class="score-label">当前评分</div>
+      <div class="score-number">\${total}</div>
+    \`;
+    leftPanel.appendChild(footer);
+
+    await new Promise(resolve => setTimeout(resolve, 300));
+
+    try {
+      const canvas = await html2canvas(leftPanel, {
+        backgroundColor: '#0b0e14',
+        scale: 2,
+        useCORS: true,
+        allowTaint: true,
+        logging: false,
+        scrollX: 0,
+        scrollY: 0,
+        windowWidth: leftPanel.scrollWidth,
+        windowHeight: leftPanel.scrollHeight
+      });
+      const link = document.createElement('a');
+      link.download = '狂鹿作战_一图流.png';
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    } catch (err) {
+      console.error(err);
+      alert('导出图片失败：' + err.message);
+    } finally {
+      leftPanel.removeChild(header);
+      leftPanel.removeChild(footer);
+      toolbar.style.display = origToolbarDisplay || '';
+      scorePanel.style.display = origScorePanelDisplay || '';
+      hSliderBar.style.display = '';
+      leftPanel.style.padding = origPadding;
+      leftPanel.style.height = origHeight;
+      leftPanel.style.width = origWidth;
+      leftPanel.style.overflow = origOverflow;
+      leftPanel.style.display = origDisplay;
+
+      treeContainer.style.overflow = origTreeOverflow || '';
+      treeContainer.style.width = origTreeWidth || '';
+      treeContainer.style.height = origTreeHeight || '';
+
+      document.querySelectorAll('.root-set-bg').forEach(bgEl => {
+        const rootId = bgEl.dataset.root;
+        if (setBgImage) {
+          bgEl.style.backgroundImage = \`url('\${setBgImage}')\`;
+          bgEl.style.opacity = '${setBgOpacity / 100}';
+        } else {
+          bgEl.style.backgroundImage = '';
+          bgEl.style.background = 'linear-gradient(135deg, #2a1e1e55, #14181f88)';
+          bgEl.style.opacity = '${setBgOpacity / 100}';
+        }
+      });
+
+      requestAnimationFrame(updateHSliderBar);
+    }
+  });
+
+  window.addEventListener('load', () => {
+    rebuildGrid();
+    buildTreeLayout();
+
+    document.getElementById('exportBtn').addEventListener('click', exportCode);
+    document.getElementById('importBtn').addEventListener('click', importCode);
+    document.getElementById('applyCodeBtn').addEventListener('click', importCode);
+
+    document.getElementById('codeInput').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') importCode();
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.node')) hideTooltip();
+    });
+
+    document.getElementById('selectAllBtn').addEventListener('click', () => {
+      selectAll();
+      updateAllNodeAppearance();
+    });
+    document.getElementById('deselectAllBtn').addEventListener('click', () => {
+      deselectAll();
+      updateAllNodeAppearance();
+    });
+
+    const slider = document.getElementById('difficultySlider');
+    const display = document.getElementById('difficultyDisplay');
+    slider.addEventListener('input', () => {
+      difficulty = parseInt(slider.value);
+      display.textContent = difficulty;
+      applyDifficultyChange();
+    });
+  });
+<\/script>
+</body>
+</html>`;
+  }
+
+  let previewFrame = document.getElementById('previewFrame');
+  let previewStatus = document.getElementById('previewStatus');
+
+  function updatePreview() {
+    if (nodeStore.size === 0) {
+      previewStatus.textContent = '暂无词条数据';
+      previewFrame.srcdoc = `<!DOCTYPE html><html><body style="background:#0b0e14;color:#596b7e;display:flex;justify-content:center;align-items:center;height:100vh;font-family:sans-serif;font-style:italic;">暂无词条，请添加</body></html>`;
+      return;
+    }
+    try {
+      const html = generateSelectorHTML();
+      previewFrame.srcdoc = html;
+      previewStatus.textContent = `${nodeStore.size} 个词条 · 预览已更新`;
+    } catch (e) {
+      console.error(e);
+      previewStatus.textContent = '生成预览出错';
+      previewFrame.srcdoc = `<html><body style="background:#0b0e14;color:#ff6b6b;padding:20px;font-family:sans-serif;">生成错误: ${e.message}</body></html>`;
+    }
+  }
+
+  document.getElementById('generateBtn').addEventListener('click', () => {
+    if (nodeStore.size === 0) {
+      showToast('请先添加词条', true);
+      return;
+    }
+    try {
+      const html = generateSelectorHTML();
+      const win = window.open('', '_blank');
+      if (win) {
+        win.document.write(html);
+        win.document.close();
+        showToast('已在新窗口打开生成的页面');
+      } else {
+        showToast('请允许弹出窗口', true);
+      }
+    } catch (e) {
+      showToast('生成失败: ' + e.message, true);
+    }
+  });
+
+  document.getElementById('downloadBtn').addEventListener('click', () => {
+    if (nodeStore.size === 0) {
+      showToast('请先添加词条', true);
+      return;
+    }
+    try {
+      const html = generateSelectorHTML();
+      const blob = new Blob([html], { type: 'text/html' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = '狂鹿作战_词条选择器.html';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      showToast('文件已下载');
+    } catch (e) {
+      showToast('下载失败: ' + e.message, true);
+    }
+  });
+
+  renderLineConfig([]);
+  renderNodeList();
+  updatePreview();
+</script>
+</body>
+</html>
